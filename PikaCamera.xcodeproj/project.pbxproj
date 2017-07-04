@@ -13,6 +13,7 @@
 		1F83A3061F0A821C00829CF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3051F0A821C00829CF7 /* Assets.xcassets */; };
 		1F83A3091F0A821C00829CF7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3071F0A821C00829CF7 /* LaunchScreen.storyboard */; };
 		1F83A3141F0A821C00829CF7 /* PikaCameraTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F83A3131F0A821C00829CF7 /* PikaCameraTests.swift */; };
+		1FBF6F931F0BCC30003ADBE4 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FBF6F921F0BCC30003ADBE4 /* CameraViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +37,7 @@
 		1F83A30F1F0A821C00829CF7 /* PikaCameraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PikaCameraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F83A3131F0A821C00829CF7 /* PikaCameraTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PikaCameraTests.swift; sourceTree = "<group>"; };
 		1F83A3151F0A821C00829CF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1FBF6F921F0BCC30003ADBE4 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,6 +85,7 @@
 				1F83A3051F0A821C00829CF7 /* Assets.xcassets */,
 				1F83A3071F0A821C00829CF7 /* LaunchScreen.storyboard */,
 				1F83A30A1F0A821C00829CF7 /* Info.plist */,
+				1FBF6F921F0BCC30003ADBE4 /* CameraViewController.swift */,
 			);
 			path = PikaCamera;
 			sourceTree = "<group>";
@@ -199,6 +202,7 @@
 			files = (
 				1F83A3011F0A821C00829CF7 /* ViewController.swift in Sources */,
 				1F83A2FF1F0A821C00829CF7 /* AppDelegate.swift in Sources */,
+				1FBF6F931F0BCC30003ADBE4 /* CameraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,6 +264,8 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -315,6 +321,8 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -418,6 +426,7 @@
 				1F83A31A1F0A821C00829CF7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		1F83A31B1F0A821C00829CF7 /* Build configuration list for PBXNativeTarget "PikaCameraTests" */ = {
 			isa = XCConfigurationList;
@@ -426,6 +435,7 @@
 				1F83A31D1F0A821C00829CF7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
