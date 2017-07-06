@@ -10,14 +10,12 @@ import UIKit
 import QuartzCore
 
 class CameraViewController: UIViewController {
-  
-  @IBOutlet weak var cameraLabel: UILabel!
-  @IBOutlet weak var photoButton: UIButton!
+  @IBOutlet weak var videoPreviewView: UIView!
+  @IBOutlet weak var shutterButton: UIButton!
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    cameraLabel.text = "CAMERA ON"
-    photoButton.layer.borderColor = UIColor.yellow.cgColor
+    shutterButton.layer.borderColor = UIColor.yellow.cgColor
   }
   
 }
