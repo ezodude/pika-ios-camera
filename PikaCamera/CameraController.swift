@@ -50,7 +50,7 @@ class CameraController: NSObject {
     case .authorized:
       print(".authorized")
     case .denied, .restricted:
-      print(".denied, .restricted")
+      self.showAccessDeniedMessage()
     }
   }
 }
