@@ -10,12 +10,19 @@ import UIKit
 import QuartzCore
 
 class CameraViewController: UIViewController {
+  var cameraController:CameraController!
+  
   @IBOutlet weak var videoPreviewView: UIView!
   @IBOutlet weak var shutterButton: UIButton!
   
   override func viewDidLoad() {
     super.viewDidLoad()
     shutterButton.layer.borderColor = UIColor.yellow.cgColor
+    
+    cameraController = CameraController()
+    let previewLayer = cameraController.previewLayer
+    previewLayer?.frame = videoPreviewView.bounds
+    videoPreviewView.layer.addSublayer(previewLayer!)
   }
   
 }
