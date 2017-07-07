@@ -8,7 +8,13 @@
 
 import AVFoundation
 
+protocol CameraControllerDelegate : class {
+  func cameraController(_ cameraController:CameraController)
+  func cameraAccessDenied()
+}
+
 class CameraController: NSObject {
+  weak var delegate:CameraControllerDelegate?
   var previewLayer:AVCaptureVideoPreviewLayer!
   
   // MARK: Private properties
@@ -16,7 +22,8 @@ class CameraController: NSObject {
   
   // MARK: - Initiliazation
   
-  override init() {
+  required init(delegate:CameraControllerDelegate) {
+    self.delegate = delegate
     super.init()
     initializeSession()
   }
@@ -36,7 +43,7 @@ class CameraController: NSObject {
                                         print("auth granted")
                                       }
                                       else {
-//                                        self.showAccessDeniedMessage()
+                                        self.showAccessDeniedMessage()
                                         print("access denied")
                                       }
       })
@@ -45,5 +52,13 @@ class CameraController: NSObject {
     case .denied, .restricted:
       print(".denied, .restricted")
     }
+  }
+}
+
+// MARK: - Private
+
+private extension CameraController {
+  func showAccessDeniedMessage() {
+    delegate?.cameraAccessDenied()
   }
 }
