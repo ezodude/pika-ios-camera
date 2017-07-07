@@ -25,6 +25,18 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     videoPreviewView.layer.addSublayer(previewLayer!)
   }
   
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
+    
+    let previewLayer = cameraController.previewLayer
+    previewLayer?.frame = videoPreviewView.bounds
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    cameraController.startRunning()
+  }
+  
   // MARK: CameraControllerDelegate funcs
   
   func cameraController(_ cameraController: CameraController) {
