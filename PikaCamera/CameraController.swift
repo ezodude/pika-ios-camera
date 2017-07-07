@@ -18,9 +18,14 @@ class CameraController: NSObject {
   var previewLayer:AVCaptureVideoPreviewLayer!
   
   // MARK: Private properties
-  fileprivate var session:AVCaptureSession!
+  fileprivate var sessionQueue:DispatchQueue = DispatchQueue(label: "com.joinpika.camera_session_access_queue", attributes: [])
   
-  // MARK: - Initiliazation
+  fileprivate var session:AVCaptureSession!
+  fileprivate var currentCameraDevice:AVCaptureDevice?
+  fileprivate var backCameraDevice:AVCaptureDevice?
+  fileprivate var frontCameraDevice:AVCaptureDevice?
+  
+  // MARK: - Initialization
   
   required init(delegate:CameraControllerDelegate) {
     self.delegate = delegate
@@ -39,7 +44,7 @@ class CameraController: NSObject {
       AVCaptureDevice.requestAccess(for: AVMediaType.video,
                                     completionHandler: { (granted:Bool) -> Void in
                                       if granted {
-//                                        self.configureSession()
+                                        self.configureSession()
                                         print("auth granted")
                                       }
                                       else {
@@ -48,7 +53,7 @@ class CameraController: NSObject {
                                       }
       })
     case .authorized:
-      print(".authorized")
+      self.configureSession()
     case .denied, .restricted:
       self.showAccessDeniedMessage()
     }
@@ -58,6 +63,44 @@ class CameraController: NSObject {
 // MARK: - Private
 
 private extension CameraController {
+  func performConfiguration(_ block: @escaping (() -> Void)) {
+    sessionQueue.async { () -> Void in
+      block()
+    }
+  }
+  
+  func configureSession() {
+    configureDeviceInput()
+//    configureStillImageCameraOutput()
+//    configureFaceDetection()
+//
+//    if previewType == .manual {
+//      configureVideoOutput()
+//    }
+  }
+  
+  func configureDeviceInput() {
+    performConfiguration { () -> Void in
+      
+//      self.backCameraDevice = AVCaptureDevice.default(withDeviceType: .builtInWideAngleCamera, mediaType: AVMediaType.video, position: .back)
+      self.backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .back)
+      
+      self.frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .front)
+      
+      // let's set the back camera as the initial device
+      
+      self.currentCameraDevice = self.backCameraDevice
+      
+      let possibleCameraInput: AnyObject? = try? AVCaptureDeviceInput(device: self.currentCameraDevice!)
+      
+      if let backCameraInput = possibleCameraInput as? AVCaptureDeviceInput {
+        if self.session.canAddInput(backCameraInput) {
+          self.session.addInput(backCameraInput)
+        }
+      }
+    }
+  }
+  
   func showAccessDeniedMessage() {
     delegate?.cameraAccessDenied()
   }
