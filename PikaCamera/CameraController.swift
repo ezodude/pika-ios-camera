@@ -35,7 +35,8 @@ class CameraController: NSObject {
   fileprivate var currentCameraDevice:AVCaptureDevice?
   fileprivate var backCameraDevice:AVCaptureDevice?
   fileprivate var frontCameraDevice:AVCaptureDevice?
-  fileprivate var stillCameraOutput:AVCaptureStillImageOutput!
+//  fileprivate var stillCameraOutput:AVCaptureStillImageOutput!
+  fileprivate var photoOutput = AVCapturePhotoOutput()
   fileprivate var videoOutput:AVCaptureVideoDataOutput!
   fileprivate var filter: CIFilter!
   
@@ -132,7 +133,8 @@ private extension CameraController {
   func configureSession() {
     session.beginConfiguration()
     configureDeviceInput()
-    configureStillImageCameraOutput()
+//    configureStillImageCameraOutput()
+    configurePhotoOutput()
     //    configureFaceDetection()
     //
     if previewType == .manual {
@@ -153,7 +155,7 @@ private extension CameraController {
       let possibleCameraInput = try? AVCaptureDeviceInput(device: self.currentCameraDevice!)
       print(">>>>> possibleCameraInput: \(String(describing: possibleCameraInput))")
       
-      if let backCameraInput = possibleCameraInput as? AVCaptureDeviceInput {
+      if let backCameraInput = possibleCameraInput {
         if self.session.canAddInput(backCameraInput) {
           self.session.addInput(backCameraInput)
           print(">>>>> session added input from back camera")
@@ -162,16 +164,33 @@ private extension CameraController {
     }
   }
   
-  func configureStillImageCameraOutput() {
+//  func configureStillImageCameraOutput() {
+//    performConfiguration { () -> Void in
+//      self.stillCameraOutput = AVCaptureStillImageOutput()
+//      self.stillCameraOutput.outputSettings = [
+//        AVVideoCodecKey  : AVVideoCodecJPEG,
+//        AVVideoQualityKey: 0.9
+//      ]
+//
+//      if self.session.canAddOutput(self.stillCameraOutput) {
+//        self.session.addOutput(self.stillCameraOutput)
+//      }
+//    }
+//  }
+  
+  func configurePhotoOutput(){
     performConfiguration { () -> Void in
-      self.stillCameraOutput = AVCaptureStillImageOutput()
-      self.stillCameraOutput.outputSettings = [
-        AVVideoCodecKey  : AVVideoCodecJPEG,
-        AVVideoQualityKey: 0.9
-      ]
+      self.photoOutput = AVCapturePhotoOutput()
+      self.photoOutput.isHighResolutionCaptureEnabled = true
+      self.photoOutput.isLivePhotoCaptureEnabled = self.photoOutput.isLivePhotoCaptureSupported
+      if #available(iOS 11.0, *) {
+        self.photoOutput.isDepthDataDeliveryEnabled = self.photoOutput.isDepthDataDeliverySupported
+      } else {
+        // Fallback on earlier versions
+      }
       
-      if self.session.canAddOutput(self.stillCameraOutput) {
-        self.session.addOutput(self.stillCameraOutput)
+      if self.session.canAddOutput(self.photoOutput) {
+        self.session.addOutput(self.photoOutput)
       }
     }
   }
