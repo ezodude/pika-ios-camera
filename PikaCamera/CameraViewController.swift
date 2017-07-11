@@ -2,52 +2,64 @@
 //  CameraViewController.swift
 //  PikaCamera
 //
-//  Created by Ezo Saleh on 04/07/2017.
+//  Created by Ezo Saleh on 10/07/2017.
 //  Copyright © 2017 Pika Vision. All rights reserved.
 //
 
 import UIKit
-import QuartzCore
+import GLKit
+import OpenGLES
 
 class CameraViewController: UIViewController, CameraControllerDelegate {
   var cameraController:CameraController!
   
-  @IBOutlet weak var videoPreviewView: UIView!
-  @IBOutlet weak var shutterButton: UIButton!
+  @IBOutlet weak var videoPreviewView: GLKView!
+  
+  fileprivate var glContext:EAGLContext?
+  fileprivate var ciContext:CIContext?
+  fileprivate var glView:GLKView {
+    get {
+      return videoPreviewView
+    }
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    shutterButton.layer.borderColor = UIColor.yellow.cgColor
+//    shutterButton.layer.borderColor = UIColor.yellow.cgColor
     
-    cameraController = CameraController(delegate: self)
-    let previewLayer = cameraController.previewLayer
-    previewLayer?.frame = videoPreviewView.bounds
-    videoPreviewView.layer.addSublayer(previewLayer!)
+    glContext = EAGLContext(api: .openGLES2)
+    glView.context = glContext!
+    glView.drawableDepthFormat = .format24
+    glView.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
+    
+    if let window = view.window {
+      glView.frame = window.bounds
+    }
+    
+    ciContext = CIContext(eaglContext: glContext!)
+    cameraController = CameraController(previewType: .manual, delegate: self)
   }
   
-  override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    
-    let previewLayer = cameraController.previewLayer
-    previewLayer?.frame = videoPreviewView.bounds
-  }
-  
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
+  override func viewDidAppear(_ animated: Bool) {
     cameraController.startRunning()
   }
   
-  // MARK: CameraControllerDelegate funcs
-  
   func cameraController(_ cameraController: CameraController) {
+    
   }
   
-  func cameraAccessDenied(){
-    let alert = UIAlertController(title: "Camera access", message: "Camera access was denied. App is not available.", preferredStyle: UIAlertControllerStyle.alert)
+  func cameraController(_ cameraController: CameraController, didOutputImage image: CIImage) {
+    if glContext != EAGLContext.current() {
+      EAGLContext.setCurrent(glContext)
+    }
     
-    alert.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.default, handler: nil))
+    glView.bindDrawable()
+    ciContext?.draw(image, in: image.extent, from: image.extent)
+    glView.display()
+  }
+  
+  func cameraAccessDenied() {
     
-    self.present(alert, animated: true, completion: nil)
   }
   
 }

@@ -2,22 +2,30 @@
 //  CameraController.swift
 //  PikaCamera
 //
-//  Created by Ezo Saleh on 06/07/2017.
+//  Created by Ezo Saleh on 10/07/2017.
 //  Copyright © 2017 Pika Vision. All rights reserved.
 //
 
 import AVFoundation
+import CoreImage
 
 let CameraControllerDidStartSession = "CameraControllerDidStartSession"
 let CameraControllerDidStopSession = "CameraControllerDidStopSession"
 
+enum CameraControllePreviewType {
+  case previewLayer
+  case manual
+}
+
 protocol CameraControllerDelegate : class {
   func cameraController(_ cameraController:CameraController)
+  func cameraController(_ cameraController:CameraController, didOutputImage: CIImage)
   func cameraAccessDenied()
 }
 
 class CameraController: NSObject {
   weak var delegate:CameraControllerDelegate?
+  var previewType:CameraControllePreviewType
   var previewLayer:AVCaptureVideoPreviewLayer!
   
   // MARK: Private properties
@@ -28,19 +36,32 @@ class CameraController: NSObject {
   fileprivate var backCameraDevice:AVCaptureDevice?
   fileprivate var frontCameraDevice:AVCaptureDevice?
   fileprivate var stillCameraOutput:AVCaptureStillImageOutput!
+  fileprivate var videoOutput:AVCaptureVideoDataOutput!
+  fileprivate var filter: CIFilter!
   
   // MARK: - Initialization
   
-  required init(delegate:CameraControllerDelegate) {
+  required init(previewType:CameraControllePreviewType, delegate:CameraControllerDelegate) {
     self.delegate = delegate
+    self.previewType = previewType
+    
     super.init()
     initializeSession()
+    configureFilter()
+  }
+  
+  
+  convenience init(delegate:CameraControllerDelegate) {
+    self.init(previewType: .previewLayer, delegate: delegate)
   }
   
   func initializeSession() {
     session = AVCaptureSession()
     session.sessionPreset = AVCaptureSession.Preset.photo
-    previewLayer = AVCaptureVideoPreviewLayer(session: self.session) as AVCaptureVideoPreviewLayer
+    
+    if previewType == .previewLayer {
+      previewLayer = AVCaptureVideoPreviewLayer(session: self.session) as AVCaptureVideoPreviewLayer
+    }
     
     let authorizationStatus = AVCaptureDevice.authorizationStatus(for: AVMediaType.video)
     switch authorizationStatus {
@@ -81,6 +102,24 @@ class CameraController: NSObject {
   }
 }
 
+extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
+  
+  func captureOutput(_ output: AVCaptureOutput,
+                     didOutput sampleBuffer: CMSampleBuffer,
+                     from connection: AVCaptureConnection){
+    
+    let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+    let frame = CIImage(cvPixelBuffer: pixelBuffer!)
+    print(">>>>> captured Output \(frame)")
+    
+    self.filter.setValue(frame, forKey: kCIInputImageKey)
+    guard let filteredFrame = filter.outputImage else {
+      return
+    }
+    self.delegate?.cameraController(self, didOutputImage: filteredFrame)
+  }
+}
+
 // MARK: - Private
 
 private extension CameraController {
@@ -91,13 +130,15 @@ private extension CameraController {
   }
   
   func configureSession() {
+    session.beginConfiguration()
     configureDeviceInput()
     configureStillImageCameraOutput()
-//    configureFaceDetection()
-//
-//    if previewType == .manual {
-//      configureVideoOutput()
-//    }
+    //    configureFaceDetection()
+    //
+    if previewType == .manual {
+      configureVideoOutput()
+    }
+    self.session.commitConfiguration()
   }
   
   func configureDeviceInput() {
@@ -110,10 +151,12 @@ private extension CameraController {
       
       self.currentCameraDevice = self.backCameraDevice
       let possibleCameraInput: AnyObject? = try? AVCaptureDeviceInput(device: self.currentCameraDevice!)
+      print(">>>>> possibleCameraInput: \(String(describing: possibleCameraInput))")
       
       if let backCameraInput = possibleCameraInput as? AVCaptureDeviceInput {
         if self.session.canAddInput(backCameraInput) {
           self.session.addInput(backCameraInput)
+          print(">>>>> session added input from back camera")
         }
       }
     }
@@ -133,6 +176,40 @@ private extension CameraController {
     }
   }
   
+  func configureVideoOutput() {
+    performConfiguration { () -> Void in
+      self.videoOutput = AVCaptureVideoDataOutput()
+      self.videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.joinpika.video_out_queue", attributes: []))
+      self.videoOutput.alwaysDiscardsLateVideoFrames = true
+      
+      if self.session.canAddOutput(self.videoOutput) {
+        self.session.addOutput(self.videoOutput)
+        print(">>>>> added video output to session")
+      }
+      
+      if let connection = self.videoOutput.connection(with: AVMediaType.video) {
+        print(">>>>> connection \(connection)")
+        if connection.isVideoStabilizationSupported {
+          connection.preferredVideoStabilizationMode = .auto
+        }
+      }else{
+        print(">>>>> no connection")
+      }
+    }
+  }
+  
+  func configureFilter(){
+    performConfiguration { () -> Void in
+      self.filter = CIFilter(
+        name: "CIColorMonochrome",
+        withInputParameters: [
+          "inputColor" : CIColor(red: 1.0, green: 1.0, blue: 1.0),
+          "inputIntensity" : 1.0
+        ]
+      )
+    }
+  }
+  
   func observeValues() {
   }
   
@@ -143,3 +220,4 @@ private extension CameraController {
     delegate?.cameraAccessDenied()
   }
 }
+
