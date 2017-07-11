@@ -150,7 +150,7 @@ private extension CameraController {
       // let's set the back camera as the initial device
       
       self.currentCameraDevice = self.backCameraDevice
-      let possibleCameraInput: AnyObject? = try? AVCaptureDeviceInput(device: self.currentCameraDevice!)
+      let possibleCameraInput = try? AVCaptureDeviceInput(device: self.currentCameraDevice!)
       print(">>>>> possibleCameraInput: \(String(describing: possibleCameraInput))")
       
       if let backCameraInput = possibleCameraInput as? AVCaptureDeviceInput {
