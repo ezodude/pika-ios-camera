@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1F4F7E171F13AA6500EF7F66 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4F7E161F13AA6500EF7F66 /* CameraViewController.swift */; };
 		1F4F7E191F13AFB500EF7F66 /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4F7E181F13AFB500EF7F66 /* CameraController.swift */; };
+		1F4F7E1B1F15EBCD00EF7F66 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4F7E1A1F15EBCD00EF7F66 /* PhotoCaptureDelegate.swift */; };
 		1F83A2FF1F0A821C00829CF7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F83A2FE1F0A821C00829CF7 /* AppDelegate.swift */; };
 		1F83A3041F0A821C00829CF7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3021F0A821C00829CF7 /* Main.storyboard */; };
 		1F83A3061F0A821C00829CF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3051F0A821C00829CF7 /* Assets.xcassets */; };
@@ -29,6 +30,7 @@
 /* Begin PBXFileReference section */
 		1F4F7E161F13AA6500EF7F66 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		1F4F7E181F13AFB500EF7F66 /* CameraController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraController.swift; sourceTree = "<group>"; };
+		1F4F7E1A1F15EBCD00EF7F66 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		1F83A2FB1F0A821C00829CF7 /* PikaCamera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PikaCamera.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F83A2FE1F0A821C00829CF7 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1F83A3031F0A821C00829CF7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 				1F83A2FE1F0A821C00829CF7 /* AppDelegate.swift */,
 				1F4F7E161F13AA6500EF7F66 /* CameraViewController.swift */,
 				1F4F7E181F13AFB500EF7F66 /* CameraController.swift */,
+				1F4F7E1A1F15EBCD00EF7F66 /* PhotoCaptureDelegate.swift */,
 				1F83A3021F0A821C00829CF7 /* Main.storyboard */,
 				1F83A3051F0A821C00829CF7 /* Assets.xcassets */,
 				1F83A3071F0A821C00829CF7 /* LaunchScreen.storyboard */,
@@ -202,6 +205,7 @@
 			files = (
 				1F4F7E191F13AFB500EF7F66 /* CameraController.swift in Sources */,
 				1F83A2FF1F0A821C00829CF7 /* AppDelegate.swift in Sources */,
+				1F4F7E1B1F15EBCD00EF7F66 /* PhotoCaptureDelegate.swift in Sources */,
 				1F4F7E171F13AA6500EF7F66 /* CameraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

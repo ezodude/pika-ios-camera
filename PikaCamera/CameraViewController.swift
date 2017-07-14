@@ -38,16 +38,23 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     }
     
     ciContext = CIContext(eaglContext: glContext!)
-    cameraController = CameraController(previewType: .manual, delegate: self)
+    cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, delegate: self)
   }
   
   override func viewDidAppear(_ animated: Bool) {
     cameraController.startRunning()
   }
   
-  func cameraController(_ cameraController: CameraController) {
-    
+  // Mark: Actions
+  
+  @IBAction func handleShutterButton(_ sender: UIButton) {
+//    cameraController.capturePhoto { (image, metadata) -> Void in
+//      UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+//    }
+    cameraController.capturePhoto()
   }
+  
+  // Mark: Delegates
   
   func cameraController(_ cameraController: CameraController, didOutputImage image: CIImage) {
     if glContext != EAGLContext.current() {
@@ -59,8 +66,17 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     glView.display()
   }
   
-  func cameraAccessDenied() {
-    
+  func cameraController(_ cameraController: CameraController) {
   }
   
+  func cameraAccessDenied() {
+  }
+  
+  func willCapturePhotoAnimation() {
+    print("willCapturePhotoAnimation animate view for photo capture > glView opacity 0")
+    self.glView.layer.opacity = 0
+    UIView.animate(withDuration: 0.25) { [unowned self] in
+      self.glView.layer.opacity = 1
+    }
+  }
 }
