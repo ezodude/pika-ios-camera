@@ -48,10 +48,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   // Mark: Actions
   
   @IBAction func handleShutterButton(_ sender: UIButton) {
-//    cameraController.capturePhoto { (image, metadata) -> Void in
-//      UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
-//    }
-    cameraController.capturePhoto()
+      cameraController.capturePhoto()
   }
   
   // Mark: Delegates
