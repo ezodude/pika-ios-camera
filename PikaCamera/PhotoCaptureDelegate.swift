@@ -85,7 +85,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
       print("Error capturing photo: \(error)")
     } else {
       let original = CIImage(data: AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: photoSampleBuffer!, previewPhotoSampleBuffer: previewPhotoSampleBuffer)!)
-      let filtered = filter == .monochrome ? original?.applyingFilter("CIPhotoEffectNoir", withInputParameters: nil) : original
+      let filtered = filter == .monochrome ? original?.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : original
       
       // Get a JPEG data representation of the filter output.
       let colorSpaceMap: [AVCaptureColorSpace: CFString] = [

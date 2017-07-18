@@ -180,7 +180,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     let frame = CIImage(cvPixelBuffer: pixelBuffer!)
     //    print(">>>>> captured Output \(frame)")
     
-    let filtered = previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", withInputParameters: nil) : frame
+    let filtered = previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
     self.delegate?.cameraController(self, didOutputImage: filtered)
   }
 }
