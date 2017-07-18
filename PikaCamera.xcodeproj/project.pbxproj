@@ -15,6 +15,8 @@
 		1F83A3061F0A821C00829CF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3051F0A821C00829CF7 /* Assets.xcassets */; };
 		1F83A3091F0A821C00829CF7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3071F0A821C00829CF7 /* LaunchScreen.storyboard */; };
 		1F83A3141F0A821C00829CF7 /* PikaCameraTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F83A3131F0A821C00829CF7 /* PikaCameraTests.swift */; };
+		F7D27970086950678ABB2F80 /* Pods_PikaCamera.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDAC290F903A41DBE4994722 /* Pods_PikaCamera.framework */; };
+		FCDCF8C5A3C1B0C69FA6A55D /* Pods_PikaCameraTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C8F1D298644496F7A565E5 /* Pods_PikaCameraTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +42,12 @@
 		1F83A30F1F0A821C00829CF7 /* PikaCameraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PikaCameraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F83A3131F0A821C00829CF7 /* PikaCameraTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PikaCameraTests.swift; sourceTree = "<group>"; };
 		1F83A3151F0A821C00829CF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		75F9D29F8F09055C0839E7E7 /* Pods-PikaCamera.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PikaCamera.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PikaCamera/Pods-PikaCamera.debug.xcconfig"; sourceTree = "<group>"; };
+		8060136F77CBFF0763844F4F /* Pods-PikaCamera.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PikaCamera.release.xcconfig"; path = "Pods/Target Support Files/Pods-PikaCamera/Pods-PikaCamera.release.xcconfig"; sourceTree = "<group>"; };
+		A6C8F1D298644496F7A565E5 /* Pods_PikaCameraTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PikaCameraTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB2C143C7BEE37496C72CBFC /* Pods-PikaCameraTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PikaCameraTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PikaCameraTests/Pods-PikaCameraTests.release.xcconfig"; sourceTree = "<group>"; };
+		CDAC290F903A41DBE4994722 /* Pods_PikaCamera.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PikaCamera.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9A3ED40D89452EE4A7C1E53 /* Pods-PikaCameraTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PikaCameraTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PikaCameraTests/Pods-PikaCameraTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F7D27970086950678ABB2F80 /* Pods_PikaCamera.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -54,6 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FCDCF8C5A3C1B0C69FA6A55D /* Pods_PikaCameraTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +76,8 @@
 				1F83A2FD1F0A821C00829CF7 /* PikaCamera */,
 				1F83A3121F0A821C00829CF7 /* PikaCameraTests */,
 				1F83A2FC1F0A821C00829CF7 /* Products */,
+				878D1D574B383BED5F4E470D /* Pods */,
+				B0A5EDB910CA4656CDD3BBE1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -102,6 +114,26 @@
 			path = PikaCameraTests;
 			sourceTree = "<group>";
 		};
+		878D1D574B383BED5F4E470D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				75F9D29F8F09055C0839E7E7 /* Pods-PikaCamera.debug.xcconfig */,
+				8060136F77CBFF0763844F4F /* Pods-PikaCamera.release.xcconfig */,
+				E9A3ED40D89452EE4A7C1E53 /* Pods-PikaCameraTests.debug.xcconfig */,
+				AB2C143C7BEE37496C72CBFC /* Pods-PikaCameraTests.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		B0A5EDB910CA4656CDD3BBE1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CDAC290F903A41DBE4994722 /* Pods_PikaCamera.framework */,
+				A6C8F1D298644496F7A565E5 /* Pods_PikaCameraTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -109,9 +141,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1F83A3181F0A821C00829CF7 /* Build configuration list for PBXNativeTarget "PikaCamera" */;
 			buildPhases = (
+				44C00CA55984A80739208D3F /* [CP] Check Pods Manifest.lock */,
 				1F83A2F71F0A821C00829CF7 /* Sources */,
 				1F83A2F81F0A821C00829CF7 /* Frameworks */,
 				1F83A2F91F0A821C00829CF7 /* Resources */,
+				75C6D68EDC12F960486FE116 /* [CP] Embed Pods Frameworks */,
+				63A54893819D053697B6746D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -126,9 +161,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1F83A31B1F0A821C00829CF7 /* Build configuration list for PBXNativeTarget "PikaCameraTests" */;
 			buildPhases = (
+				591CC17B1BB928E7994633E3 /* [CP] Check Pods Manifest.lock */,
 				1F83A30B1F0A821C00829CF7 /* Sources */,
 				1F83A30C1F0A821C00829CF7 /* Frameworks */,
 				1F83A30D1F0A821C00829CF7 /* Resources */,
+				5E3A4DF1E80B31AEAD911B41 /* [CP] Embed Pods Frameworks */,
+				7ACAB0F0F3F4AE62C3AF3431 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -197,6 +235,99 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		44C00CA55984A80739208D3F /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		591CC17B1BB928E7994633E3 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		5E3A4DF1E80B31AEAD911B41 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PikaCameraTests/Pods-PikaCameraTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		63A54893819D053697B6746D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PikaCamera/Pods-PikaCamera-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		75C6D68EDC12F960486FE116 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PikaCamera/Pods-PikaCamera-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7ACAB0F0F3F4AE62C3AF3431 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PikaCameraTests/Pods-PikaCameraTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1F83A2F71F0A821C00829CF7 /* Sources */ = {
@@ -357,6 +488,7 @@
 		};
 		1F83A3191F0A821C00829CF7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 75F9D29F8F09055C0839E7E7 /* Pods-PikaCamera.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 662KJDHEKU;
@@ -371,6 +503,7 @@
 		};
 		1F83A31A1F0A821C00829CF7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8060136F77CBFF0763844F4F /* Pods-PikaCamera.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 662KJDHEKU;
@@ -385,6 +518,7 @@
 		};
 		1F83A31C1F0A821C00829CF7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E9A3ED40D89452EE4A7C1E53 /* Pods-PikaCameraTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -400,6 +534,7 @@
 		};
 		1F83A31D1F0A821C00829CF7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AB2C143C7BEE37496C72CBFC /* Pods-PikaCameraTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
