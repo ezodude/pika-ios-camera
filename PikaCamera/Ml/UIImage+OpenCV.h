@@ -9,8 +9,8 @@
 #ifndef UIImage_OpenCV_h
 #define UIImage_OpenCV_h
 
-#import <UIKit/UIKit.h>
 #import <opencv2/opencv.hpp>
+#import <UIKit/UIKit.h>
 
 @interface UIImage (OpenCV)
 
