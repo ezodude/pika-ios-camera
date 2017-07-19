@@ -21,7 +21,10 @@
 
   self = [super init];
   if (self) {
+    NSLog(@"Title: [%@]", title);
     NSString *modelPath = [[NSBundle mainBundle] pathForResource:title ofType:@"json"];
+    NSLog(@"Model path: [%@]", modelPath);
+    
     const CFIndex MODEL_NAME_LEN = 2048;
     char *MODEL_NAME = (char *) malloc(MODEL_NAME_LEN);
     CFStringGetFileSystemRepresentation( (CFStringRef)modelPath, MODEL_NAME, MODEL_NAME_LEN);

@@ -40,6 +40,7 @@ class CameraController: NSObject {
   fileprivate var sessionQueue:DispatchQueue = DispatchQueue(label: "com.joinpika.camera_session_access_queue", attributes: [])
   
   fileprivate var session:AVCaptureSession!
+  fileprivate var ccWrapper:CCWrapper?
   fileprivate var currentCameraDevice:AVCaptureDevice?
   fileprivate var backCameraDevice:AVCaptureDevice?
   fileprivate var frontCameraDevice:AVCaptureDevice?
@@ -56,6 +57,7 @@ class CameraController: NSObject {
     
     super.init()
     initializeSession()
+    self.ccWrapper = CCWrapper(model: "color_statistic")
   }
   
   
