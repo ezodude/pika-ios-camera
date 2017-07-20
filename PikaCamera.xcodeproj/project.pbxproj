@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1F0ADA581F1E5E5F00CBCFA6 /* CCWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1F0ADA571F1E5E5F00CBCFA6 /* CCWrapper.mm */; };
-		1F0ADA5C1F1E5FB700CBCFA6 /* UIImage+OpenCV.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1F0ADA5B1F1E5FB700CBCFA6 /* UIImage+OpenCV.mm */; };
 		1F47E5EE1F1F576100043AA3 /* color_statistic.json in Resources */ = {isa = PBXBuildFile; fileRef = 1F47E5ED1F1F574E00043AA3 /* color_statistic.json */; };
 		1F47E5F11F1FA73700043AA3 /* ColorClassifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F47E5F01F1FA73700043AA3 /* ColorClassifier.cpp */; };
 		1F4F7E171F13AA6500EF7F66 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F4F7E161F13AA6500EF7F66 /* CameraViewController.swift */; };
@@ -36,8 +35,6 @@
 /* Begin PBXFileReference section */
 		1F0ADA571F1E5E5F00CBCFA6 /* CCWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CCWrapper.mm; sourceTree = "<group>"; };
 		1F0ADA591F1E5E8B00CBCFA6 /* CCWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CCWrapper.h; sourceTree = "<group>"; };
-		1F0ADA5A1F1E5F8C00CBCFA6 /* UIImage+OpenCV.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+OpenCV.h"; sourceTree = "<group>"; };
-		1F0ADA5B1F1E5FB700CBCFA6 /* UIImage+OpenCV.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIImage+OpenCV.mm"; sourceTree = "<group>"; };
 		1F47E5ED1F1F574E00043AA3 /* color_statistic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = color_statistic.json; sourceTree = "<group>"; };
 		1F47E5EF1F1FA71700043AA3 /* ColorClassifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ColorClassifier.h; sourceTree = "<group>"; };
 		1F47E5F01F1FA73700043AA3 /* ColorClassifier.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ColorClassifier.cpp; sourceTree = "<group>"; };
@@ -87,8 +84,6 @@
 			children = (
 				1F0ADA591F1E5E8B00CBCFA6 /* CCWrapper.h */,
 				1F0ADA571F1E5E5F00CBCFA6 /* CCWrapper.mm */,
-				1F0ADA5A1F1E5F8C00CBCFA6 /* UIImage+OpenCV.h */,
-				1F0ADA5B1F1E5FB700CBCFA6 /* UIImage+OpenCV.mm */,
 				1F596AE41F1EA5F300146C0F /* PikaCamera-Bridging-Header.h */,
 				1F47E5ED1F1F574E00043AA3 /* color_statistic.json */,
 				1F47E5EF1F1FA71700043AA3 /* ColorClassifier.h */,
@@ -369,7 +364,6 @@
 				1F83A2FF1F0A821C00829CF7 /* AppDelegate.swift in Sources */,
 				1F4F7E1B1F15EBCD00EF7F66 /* PhotoCaptureDelegate.swift in Sources */,
 				1F47E5F11F1FA73700043AA3 /* ColorClassifier.cpp in Sources */,
-				1F0ADA5C1F1E5FB700CBCFA6 /* UIImage+OpenCV.mm in Sources */,
 				1F4F7E171F13AA6500EF7F66 /* CameraViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

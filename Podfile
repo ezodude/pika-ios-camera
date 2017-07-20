@@ -6,7 +6,6 @@ target 'PikaCamera' do
   use_frameworks!
 
   # Pods for PikaCamera
-  pod 'OpenCV', '~> 3.2.0'
 
   target 'PikaCameraTests' do
     inherit! :search_paths
