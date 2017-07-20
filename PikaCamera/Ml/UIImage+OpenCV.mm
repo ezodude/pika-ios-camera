@@ -12,11 +12,17 @@
 
 -(cv::Mat)CVMat
 {
-  CGColorSpaceRef colorSpace = CGImageGetColorSpace(self.CGImage);
+//  CGColorSpaceRef colorSpace = CGImageGetColorSpace(self.CGImage);
+  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
   CGFloat cols = self.size.width;
   CGFloat rows = self.size.height;
   
+  NSLog(@">>>>> cols[%f], rows[%f]", cols, rows);
+  NSLog(@">>>>> colorSpace[%@]", colorSpace);
+  
   cv::Mat cvMat(rows, cols, CV_8UC4); // 8 bits per component, 4 channels
+//  NSLog(@">>>>> cvMat.data[%@]", [NSData dataWithBytes:cvMat.data length:sizeof(cvMat.data)]);
+  NSLog(@">>>>> size of cvMat.data[%lu]", sizeof(cvMat.data));
   
   CGContextRef contextRef = CGBitmapContextCreate(cvMat.data,                 // Pointer to  data
                                                   cols,                       // Width of bitmap
@@ -36,7 +42,8 @@
 - (cv::Mat)CVMat3
 {
   cv::Mat result = [self CVMat];
-  cv::cvtColor(result , result , CV_RGBA2RGB);
+//  cv::cvtColor(result , result , CV_RGBA2RGB);
+  cv::cvtColor(result , result , CV_BGR2RGB);
   return result;
   
 }

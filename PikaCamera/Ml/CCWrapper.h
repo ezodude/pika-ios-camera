@@ -12,15 +12,18 @@
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
+
 @interface CCWrapper : NSObject
 
-- (instancetype)initWithModel:(NSString *)path;
+typedef void(^CCHandler)(BOOL);
+
+- (instancetype)initWithModel:(NSString *)title queue:(dispatch_queue_t)classifierQueue;
 
 - (BOOL)isBlue:(UIImage*)tile;
 
 - (BOOL)isRed:(UIImage*)tile;
 
-- (BOOL)isYellow:(UIImage*)tile;
+- (void)isYellow:(UIImage*)tile completion:(CCHandler) handler;
 
 - (NSArray *)computeColorPercentages:(UIImage*)tile;
 

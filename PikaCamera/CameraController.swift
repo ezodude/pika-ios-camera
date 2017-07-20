@@ -47,6 +47,7 @@ class CameraController: NSObject {
   fileprivate var photoOutput = AVCapturePhotoOutput()
   fileprivate var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
   fileprivate var videoOutput:AVCaptureVideoDataOutput!
+  fileprivate var frameCounter:Int = 0
   
   // MARK: - Initialization
   
@@ -57,7 +58,7 @@ class CameraController: NSObject {
     
     super.init()
     initializeSession()
-    self.ccWrapper = CCWrapper(model: "color_statistic")
+    self.ccWrapper = CCWrapper(model: "color_statistic", queue: DispatchQueue(label: "com.joinpika.classify_color", attributes: []))
   }
   
   
@@ -178,9 +179,23 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
                      didOutput sampleBuffer: CMSampleBuffer,
                      from connection: AVCaptureConnection){
     
+    frameCounter += 1;
     let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
     let frame = CIImage(cvPixelBuffer: pixelBuffer!)
-    //    print(">>>>> captured Output \(frame)")
+
+    if (frameCounter % 15) == 0{
+      let extent = frame.extent
+      let cropRect = CGRect(x:0, y:0, width:extent.width/3, height:extent.height/3)
+//      print(">>>>> frame width[\(frame.extent.width)] height[\(frame.extent.height)]")
+      
+      let baseTile = frame.cropped(to: cropRect)
+      let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
+      self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+        print(">>>>> is yellow detected: [\(String(describing: detected))]")
+      })
+      
+      frameCounter = 0
+    }
     
     let filtered = previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
     self.delegate?.cameraController(self, didOutputImage: filtered)
