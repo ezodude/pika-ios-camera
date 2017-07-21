@@ -42,7 +42,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
                                     <glkView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" enableSetNeedsDisplay="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MU5-Eb-kT9">
-                                        <rect key="frame" x="0.0" y="0.0" width="261" height="444"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="261" height="464"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                     </glkView>
                                 </subviews>
@@ -73,7 +73,7 @@
                                 <color key="backgroundColor" red="0.40000000600000002" green="0.80000001190000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" id="DWt-Vr-TWF"/>
                     <connections>

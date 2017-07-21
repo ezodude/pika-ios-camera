@@ -34,6 +34,7 @@ class CameraController: NSObject {
   weak var delegate:CameraControllerDelegate?
   var previewType:CameraControllePreviewType
   var previewFilter:CameraControllerPreviewFilter
+  var previewBounds:CGRect
   var previewLayer:AVCaptureVideoPreviewLayer!
   
   // MARK: Private properties
@@ -51,19 +52,15 @@ class CameraController: NSObject {
   
   // MARK: - Initialization
   
-  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, delegate:CameraControllerDelegate) {
+  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, previewBounds:CGRect, delegate:CameraControllerDelegate) {
     self.delegate = delegate
     self.previewType = previewType
     self.previewFilter = previewFilter
+    self.previewBounds = previewBounds
     
     super.init()
     initializeSession()
     self.ccWrapper = CCWrapper(model: "color_statistic", queue: DispatchQueue(label: "com.joinpika.classify_color", attributes: []))
-  }
-  
-  
-  convenience init(delegate:CameraControllerDelegate) {
-    self.init(previewType: .manual, previewFilter: .monochrome, delegate: delegate)
   }
   
   func initializeSession() {
@@ -182,22 +179,29 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     frameCounter += 1;
     let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
     let frame = CIImage(cvPixelBuffer: pixelBuffer!)
-
-    if (frameCounter % 15) == 0{
-      let extent = frame.extent
-      let cropRect = CGRect(x:0, y:0, width:extent.width/3, height:extent.height/3)
-//      print(">>>>> frame width[\(frame.extent.width)] height[\(frame.extent.height)]")
-      
-      let baseTile = frame.cropped(to: cropRect)
-      let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
-      self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-        print(">>>>> is yellow detected: [\(String(describing: detected))]")
-      })
-      
-      frameCounter = 0
-    }
     
-    let filtered = previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
+    // Make a rect to crop to that's the size of the view we want to display the image in
+    let cropRect = AVMakeRect(aspectRatio: CGSize(width: previewBounds.width, height: previewBounds.height), insideRect: frame.extent)
+    // Crop
+    let croppedFrame = frame.cropped(to: cropRect)
+    // Cropping changes the origin coordinates of the cropped image, so move it back to 0
+    let translatedFrame = croppedFrame.transformed(by: CGAffineTransform(translationX: 0, y: -croppedFrame.extent.origin.y))
+
+//    if (frameCounter % 15) == 0{
+//      let extent = translatedFrame.extent
+//      let cropRect = CGRect(x:0, y:0, width:extent.width/3, height:extent.height/3)
+////      print(">>>>> frame width[\(frame.extent.width)] height[\(frame.extent.height)]")
+//
+//      let baseTile = translatedFrame.cropped(to: cropRect)
+//      let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
+//      self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+//        print(">>>>> is yellow detected: [\(String(describing: detected))]")
+//      })
+//
+//      frameCounter = 0
+//    }
+    
+    let filtered = previewFilter == .monochrome ? translatedFrame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : translatedFrame
     self.delegate?.cameraController(self, didOutputImage: filtered)
   }
 }
