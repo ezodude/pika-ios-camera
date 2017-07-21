@@ -34,9 +34,6 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     glView.drawableDepthFormat = .format24
     glView.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
     glView.frame = videoPreviewView.bounds
-//    if let window = view.window {
-//      glView.frame = window.bounds
-//    }
     
     ciContext = CIContext(eaglContext: glContext!)
     cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, previewBounds: videoPreviewView.bounds, delegate: self)
