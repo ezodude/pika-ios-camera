@@ -13,6 +13,7 @@ import OpenGLES
 class CameraViewController: UIViewController, CameraControllerDelegate {
   var cameraController:CameraController!
   
+  @IBOutlet weak var previewContainerView: UIView!
   @IBOutlet weak var videoPreviewView: GLKView!
   @IBOutlet weak var shutterButton: UIButton!
   
@@ -31,11 +32,11 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     glContext = EAGLContext(api: .openGLES2)
     glView.context = glContext!
     glView.drawableDepthFormat = .format24
-    glView.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
-    
-    if let window = view.window {
-      glView.frame = window.bounds
-    }
+//    glView.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
+    glView.frame = videoPreviewView.bounds
+//    if let window = view.window {
+//      glView.frame = window.bounds
+//    }
     
     ciContext = CIContext(eaglContext: glContext!)
     cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, delegate: self)
