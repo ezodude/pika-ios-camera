@@ -16,6 +16,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   @IBOutlet weak var previewContainerView: UIView!
   @IBOutlet weak var videoPreviewView: GLKView!
   @IBOutlet weak var shutterButton: UIButton!
+  @IBOutlet weak var colorDetectModeButton: UIButton!
   
   fileprivate var glContext:EAGLContext?
   fileprivate var ciContext:CIContext?
@@ -28,6 +29,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   override func viewDidLoad() {
     super.viewDidLoad()
     shutterButton.layer.borderColor = UIColor.yellow.cgColor
+    colorDetectModeButton.layer.borderColor = UIColor.black.cgColor
     
     glContext = EAGLContext(api: .openGLES2)
     glView.context = glContext!
