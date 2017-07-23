@@ -9,9 +9,9 @@
 import UIKit
 
 class CameraGridView: UIView {
-  var numberOfColumns:NSInteger = 3
+  var numberOfColumns:NSInteger = 2
   var numberOfRows:NSInteger = 2
-  var lineWidth:CGFloat = 1.0
+  var lineWidth:CGFloat = 0.5
   
   override init(frame: CGRect) {
     super.init(frame: frame)
