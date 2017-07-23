@@ -16,6 +16,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   
   @IBOutlet weak var previewContainerView: UIView!
   @IBOutlet weak var videoPreviewView: GLKView!
+  
   @IBOutlet weak var shutterButton: UIButton!
   @IBOutlet weak var colorDetectModeButton: UIButton!
   @IBOutlet weak var redDetectorButton: UIButton!
@@ -24,6 +25,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   
   fileprivate var glContext:EAGLContext?
   fileprivate var ciContext:CIContext?
+  fileprivate var gridView: CameraGridView!
   fileprivate var glView:GLKView {
     get {
       return videoPreviewView
@@ -40,6 +42,8 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     glView.drawableDepthFormat = .format24
     glView.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
     glView.frame = videoPreviewView.bounds
+    gridView = CameraGridView.init(frame: videoPreviewView.bounds)
+    glView.insertSubview(gridView, at: 1)
     
     ciContext = CIContext(eaglContext: glContext!)
     cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, previewBounds: videoPreviewView.bounds, delegate: self)
