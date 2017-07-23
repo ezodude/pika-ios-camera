@@ -12,11 +12,15 @@ import OpenGLES
 
 class CameraViewController: UIViewController, CameraControllerDelegate {
   var cameraController:CameraController!
+  var colorDetectionActive:Bool = false
   
   @IBOutlet weak var previewContainerView: UIView!
   @IBOutlet weak var videoPreviewView: GLKView!
   @IBOutlet weak var shutterButton: UIButton!
   @IBOutlet weak var colorDetectModeButton: UIButton!
+  @IBOutlet weak var redDetectorButton: UIButton!
+  @IBOutlet weak var blueDetectorButton: UIButton!
+  @IBOutlet weak var yellowDetectorButton: UIButton!
   
   fileprivate var glContext:EAGLContext?
   fileprivate var ciContext:CIContext?
@@ -52,6 +56,17 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   }
   
   @IBAction func toggleColorDetection(_ sender: UIButton) {
+    colorDetectionActive = !colorDetectionActive
+    
+    redDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.red.cgColor : UIColor.lightGray.cgColor
+    redDetectorButton.isEnabled = colorDetectionActive
+    
+    blueDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.blue.cgColor : UIColor.lightGray.cgColor
+    blueDetectorButton.isEnabled = colorDetectionActive
+    
+    yellowDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.yellow.cgColor : UIColor.lightGray.cgColor
+    yellowDetectorButton.isEnabled = colorDetectionActive
+    
     cameraController.toggleColorDetection()
   }
   

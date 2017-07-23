@@ -126,10 +126,13 @@
                     </view>
                     <navigationItem key="navigationItem" id="DWt-Vr-TWF"/>
                     <connections>
+                        <outlet property="blueDetectorButton" destination="aUq-D3-XKP" id="3K2-o8-0Yv"/>
                         <outlet property="colorDetectModeButton" destination="YuF-eG-VJs" id="J5s-LS-Ka7"/>
                         <outlet property="previewContainerView" destination="Noy-cC-Lnt" id="x4h-n4-Lbw"/>
+                        <outlet property="redDetectorButton" destination="vrI-cI-cnr" id="k9e-YW-OGa"/>
                         <outlet property="shutterButton" destination="x3d-5Q-3me" id="YQx-DK-lcr"/>
                         <outlet property="videoPreviewView" destination="MU5-Eb-kT9" id="9ih-nr-G0k"/>
+                        <outlet property="yellowDetectorButton" destination="g9g-49-ugg" id="XGe-ub-v8f"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Uj7-d5-wRX" userLabel="First Responder" sceneMemberID="firstResponder"/>
