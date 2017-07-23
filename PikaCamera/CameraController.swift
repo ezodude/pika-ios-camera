@@ -23,7 +23,7 @@ enum CameraControllerPreviewFilter: String {
   case none
 }
 
-enum DetectedColors: String {
+enum DetectedColor {
   case red
   case blue
   case yellow
@@ -43,7 +43,7 @@ class CameraController: NSObject {
   var previewBounds:CGRect
   var previewLayer:AVCaptureVideoPreviewLayer!
   var colorDetection:Bool = false
-  var detectedColor:DetectedColors = .red
+  var detectedColor:DetectedColor = .red
   
   // MARK: Private properties
   fileprivate var sessionQueue:DispatchQueue = DispatchQueue(label: "com.joinpika.camera_session_access_queue", attributes: [])
@@ -119,6 +119,10 @@ class CameraController: NSObject {
   
   func toggleColorDetection() {
     self.colorDetection = !self.colorDetection
+  }
+  
+  func changeDetectedColor(_ color:DetectedColor) {
+    self.detectedColor = color
   }
   
   // MARK: Capture photo
@@ -206,10 +210,22 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
 
       let baseTile = translatedFrame.cropped(to: cropRect)
       let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
-      self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-        print(">>>>> is yellow detected: [\(String(describing: detected))]")
-      })
-
+      
+      switch detectedColor {
+      case .red:
+        self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+          print(">>>>> is red detected: [\(String(describing: detected))]")
+        })
+      case .blue:
+        self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+          print(">>>>> is blue detected: [\(String(describing: detected))]")
+        })
+      case .yellow:
+        self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+          print(">>>>> is yellow detected: [\(String(describing: detected))]")
+        })
+      }
+      
       frameCounter = 0
     }
     

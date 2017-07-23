@@ -41,13 +41,20 @@
   return self;
 }
 
-- (BOOL)isBlue:(UIImage*)tile{
-//  return _colorClassifier->is_blue(<#const cv::Mat &tile#>, <#float alpha#>)
-  return false;
+- (void)isRed:(UIImage*)tile completion:(CCHandler) handler{
+  dispatch_async(self.classifierQueue, ^{
+    NSArray *colors = [self getRGBAsFromImage:tile];
+    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:colors];
+    handler((bool)_colorClassifier->is_red(colorsASVectors, 0.18));
+  });
 }
 
-- (BOOL)isRed:(UIImage*)tile{
-  return false;
+- (void)isBlue:(UIImage*)tile completion:(CCHandler) handler{
+  dispatch_async(self.classifierQueue, ^{
+    NSArray *colors = [self getRGBAsFromImage:tile];
+    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:colors];
+    handler((bool)_colorClassifier->is_blue(colorsASVectors, 0.18));
+  });
 }
 
 - (void)isYellow:(UIImage*)tile completion:(CCHandler) handler{
