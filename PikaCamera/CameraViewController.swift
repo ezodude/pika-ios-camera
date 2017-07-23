@@ -60,16 +60,39 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     
     redDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.red.cgColor : UIColor.lightGray.cgColor
     redDetectorButton.isEnabled = colorDetectionActive
+    redDetectorButton.layer.borderColor = UIColor.clear.cgColor
     
     blueDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.blue.cgColor : UIColor.lightGray.cgColor
     blueDetectorButton.isEnabled = colorDetectionActive
+    blueDetectorButton.layer.borderColor = UIColor.clear.cgColor
     
     yellowDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.yellow.cgColor : UIColor.lightGray.cgColor
     yellowDetectorButton.isEnabled = colorDetectionActive
+    yellowDetectorButton.layer.borderColor = UIColor.clear.cgColor
     
+    if colorDetectionActive {
+      detectRed(redDetectorButton)
+    }
     cameraController.toggleColorDetection()
   }
   
+  @IBAction func detectRed(_ sender: UIButton) {
+    redDetectorButton.layer.borderColor = UIColor.white.cgColor
+    blueDetectorButton.layer.borderColor = UIColor.clear.cgColor
+    yellowDetectorButton.layer.borderColor = UIColor.clear.cgColor
+  }
+  
+  @IBAction func detectBlue(_ sender: UIButton) {
+    redDetectorButton.layer.borderColor = UIColor.clear.cgColor
+    blueDetectorButton.layer.borderColor = UIColor.white.cgColor
+    yellowDetectorButton.layer.borderColor = UIColor.clear.cgColor
+  }
+  
+  @IBAction func detectYellow(_ sender: UIButton) {
+    redDetectorButton.layer.borderColor = UIColor.clear.cgColor
+    blueDetectorButton.layer.borderColor = UIColor.clear.cgColor
+    yellowDetectorButton.layer.borderColor = UIColor.white.cgColor
+  }
   // Mark: Delegates
   
   func cameraController(_ cameraController: CameraController, didOutputImage image: CIImage) {
