@@ -23,6 +23,12 @@ enum CameraControllerPreviewFilter: String {
   case none
 }
 
+enum DetectedColors: String {
+  case red
+  case blue
+  case yellow
+}
+
 protocol CameraControllerDelegate : class {
   func cameraController(_ cameraController:CameraController)
   func cameraController(_ cameraController:CameraController, didOutputImage: CIImage)
@@ -36,6 +42,8 @@ class CameraController: NSObject {
   var previewFilter:CameraControllerPreviewFilter
   var previewBounds:CGRect
   var previewLayer:AVCaptureVideoPreviewLayer!
+  var colorDetection:Bool = false
+  var detectedColor:DetectedColors = .red
   
   // MARK: Private properties
   fileprivate var sessionQueue:DispatchQueue = DispatchQueue(label: "com.joinpika.camera_session_access_queue", attributes: [])
@@ -107,6 +115,10 @@ class CameraController: NSObject {
       self.unobserveValues()
       self.session.stopRunning()
     }
+  }
+  
+  func toggleColorDetection() {
+    self.colorDetection = !self.colorDetection
   }
   
   // MARK: Capture photo
@@ -187,7 +199,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     // Cropping changes the origin coordinates of the cropped image, so move it back to 0
     let translatedFrame = croppedFrame.transformed(by: CGAffineTransform(translationX: 0, y: -croppedFrame.extent.origin.y))
 
-    if (frameCounter % 15) == 0{
+    if (frameCounter % 15) == 0 && colorDetection {
       let extent = translatedFrame.extent
       let cropRect = CGRect(x:0, y:0, width:extent.width/3, height:extent.height/3)
 //      print(">>>>> frame width[\(frame.extent.width)] height[\(frame.extent.height)]")

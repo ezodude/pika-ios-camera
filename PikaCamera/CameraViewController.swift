@@ -51,6 +51,10 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
       cameraController.capturePhoto()
   }
   
+  @IBAction func toggleColorDetection(_ sender: UIButton) {
+    cameraController.toggleColorDetection()
+  }
+  
   // Mark: Delegates
   
   func cameraController(_ cameraController: CameraController, didOutputImage image: CIImage) {
