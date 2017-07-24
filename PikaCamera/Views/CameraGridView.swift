@@ -9,9 +9,13 @@
 import UIKit
 
 class CameraGridView: UIView {
-  var numberOfColumns:NSInteger = 2
-  var numberOfRows:NSInteger = 2
-  var lineWidth:CGFloat = 0.5
+  let numberOfColumns:NSInteger = 2
+  let numberOfRows:NSInteger = 2
+  let lineWidth:CGFloat = 0.5
+  
+  var columnWidth:CGFloat?
+  var rowHeight:CGFloat?
+  var tiles:[CGRect] = []
   
   var showCircle:Bool = false
   var showCircleRect:CGRect?
@@ -20,6 +24,14 @@ class CameraGridView: UIView {
   override init(frame: CGRect) {
     super.init(frame: frame)
     self.backgroundColor = UIColor.clear
+    self.columnWidth = self.frame.size.width / CGFloat(self.numberOfColumns + 1);
+    self.rowHeight = self.frame.size.height / CGFloat(self.numberOfRows + 1);
+    
+    for cols in 0...self.numberOfColumns{
+      for rows in 0...self.numberOfRows{
+        self.tiles.append(CGRect(x: CGFloat(cols) * self.columnWidth!, y: CGFloat(rows) * self.rowHeight!, width: self.columnWidth!, height: self.rowHeight!))
+      }
+    }
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -44,16 +56,13 @@ class CameraGridView: UIView {
     
     context.setLineWidth(self.lineWidth);
     context.setStrokeColor(UIColor.white.cgColor)
-    
+
     // ---------------------------
     // Drawing column lines
     // ---------------------------
-    
-    // calculate column width
-    let columnWidth:CGFloat = self.frame.size.width / CGFloat(self.numberOfColumns + 1);
-    
+
     for index in 1...self.numberOfColumns {
-      let startX:CGFloat = columnWidth * CGFloat(index)
+      let startX:CGFloat = self.columnWidth! * CGFloat(index)
       let startPoint:CGPoint = CGPoint(x:startX, y:0.0)
       let endPoint:CGPoint = CGPoint(x: startX, y:self.frame.size.height)
       
@@ -66,11 +75,8 @@ class CameraGridView: UIView {
     // Drawing row lines
     // ---------------------------
     
-    // calclulate row height
-    let rowHeight:CGFloat = self.frame.size.height / CGFloat(self.numberOfRows + 1);
-    
     for index in 1...self.numberOfRows {
-      let startY:CGFloat = rowHeight * CGFloat(index)
+      let startY:CGFloat = self.rowHeight! * CGFloat(index)
       let startPoint:CGPoint = CGPoint(x:0.0, y:startY)
       let endPoint:CGPoint = CGPoint(x: self.frame.size.width, y:startY)
       
