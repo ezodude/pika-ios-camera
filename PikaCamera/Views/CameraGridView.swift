@@ -13,6 +13,10 @@ class CameraGridView: UIView {
   var numberOfRows:NSInteger = 2
   var lineWidth:CGFloat = 0.5
   
+  var showCircle:Bool = false
+  var showCircleRect:CGRect?
+  var showCircleColor:UIColor?
+  
   override init(frame: CGRect) {
     super.init(frame: frame)
     self.backgroundColor = UIColor.clear
@@ -22,10 +26,22 @@ class CameraGridView: UIView {
     super.init(coder: aDecoder)
   }
   
+  func drawCircle(context:CGContext, inRect: CGRect, color:CGColor) {
+    context.setLineWidth(2.0)
+    context.setFillColor(color)
+    
+    let x = inRect.origin.x + (inRect.size.width / 2.0)
+    let y = inRect.origin.y + (inRect.size.height / 2.0)
+    let circle = CGRect(x:x, y:y, width: 30, height: 30)
+    context.fillEllipse(in: circle)
+  }
+  
   // Only override draw() if you perform custom drawing.
   // An empty implementation adversely affects performance during animation.
   override func draw(_ rect: CGRect) {
     let context:CGContext = UIGraphicsGetCurrentContext()!;
+    context.clear(rect)
+    
     context.setLineWidth(self.lineWidth);
     context.setStrokeColor(UIColor.white.cgColor)
     
@@ -61,6 +77,10 @@ class CameraGridView: UIView {
       context.move(to: startPoint)
       context.addLine(to: endPoint)
       context.strokePath()
+    }
+    
+    if showCircle {
+      drawCircle(context: context, inRect: showCircleRect!, color: (showCircleColor?.cgColor)!)
     }
   }
 }

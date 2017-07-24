@@ -34,6 +34,8 @@ protocol CameraControllerDelegate : class {
   func cameraController(_ cameraController:CameraController, didOutputImage: CIImage)
   func cameraAccessDenied()
   func willCapturePhotoAnimation()
+  func drawCircle(inRect: CGRect, color:UIColor)
+  func removeCircle()
 }
 
 class CameraController: NSObject {
@@ -119,10 +121,18 @@ class CameraController: NSObject {
   
   func toggleColorDetection() {
     self.colorDetection = !self.colorDetection
+    if !self.colorDetection {
+      DispatchQueue.main.async { [unowned self] in
+        self.delegate?.removeCircle()
+      }
+    }
   }
   
   func changeDetectedColor(_ color:DetectedColor) {
     self.detectedColor = color
+    DispatchQueue.main.async { [unowned self] in
+      self.delegate?.removeCircle()
+    }
   }
   
   // MARK: Capture photo
@@ -203,10 +213,9 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     // Cropping changes the origin coordinates of the cropped image, so move it back to 0
     let translatedFrame = croppedFrame.transformed(by: CGAffineTransform(translationX: 0, y: -croppedFrame.extent.origin.y))
 
-    if (frameCounter % 15) == 0 && colorDetection {
+    if (frameCounter % 5) == 0 && colorDetection {
       let extent = translatedFrame.extent
       let cropRect = CGRect(x:0, y:0, width:extent.width/3, height:extent.height/3)
-//      print(">>>>> frame width[\(frame.extent.width)] height[\(frame.extent.height)]")
 
       let baseTile = translatedFrame.cropped(to: cropRect)
       let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
@@ -222,7 +231,13 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
         })
       case .yellow:
         self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-          print(">>>>> is yellow detected: [\(String(describing: detected))]")
+          DispatchQueue.main.async { [unowned self] in
+            if detected {
+              self.delegate?.drawCircle(inRect: cropRect, color: UIColor.yellow)
+            }else{
+              self.delegate?.removeCircle()
+            }
+          }
         })
       }
       

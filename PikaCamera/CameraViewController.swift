@@ -119,10 +119,21 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   }
   
   func willCapturePhotoAnimation() {
-    print("willCapturePhotoAnimation animate view for photo capture > glView opacity 0")
     self.glView.layer.opacity = 0
     UIView.animate(withDuration: 0.25) { [unowned self] in
       self.glView.layer.opacity = 1
     }
+  }
+  
+  func drawCircle(inRect: CGRect, color:UIColor) {
+    gridView.showCircle = true
+    gridView.showCircleRect = inRect
+    gridView.showCircleColor = color
+    gridView.setNeedsDisplay()
+  }
+  
+  func removeCircle() {
+    gridView.showCircle = false
+    gridView.setNeedsDisplay()
   }
 }
