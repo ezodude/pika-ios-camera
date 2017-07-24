@@ -52,7 +52,10 @@ class CameraGridView: UIView {
   // An empty implementation adversely affects performance during animation.
   override func draw(_ rect: CGRect) {
     let context:CGContext = UIGraphicsGetCurrentContext()!;
-    context.clear(rect)
+    if !showCircle {
+      context.clear(rect)
+    }
+//    context.clear(rect)
     
     context.setLineWidth(self.lineWidth);
     context.setStrokeColor(UIColor.white.cgColor)

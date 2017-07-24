@@ -45,10 +45,8 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     gridView = CameraGridView.init(frame: videoPreviewView.bounds)
     glView.insertSubview(gridView, at: 1)
     
-    print(gridView.tiles, ",")
-    
     ciContext = CIContext(eaglContext: glContext!)
-    cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, previewBounds: videoPreviewView.bounds, delegate: self)
+    cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, previewBounds: videoPreviewView.bounds, previewTiles: gridView.tiles, delegate: self)
   }
   
   override func viewDidAppear(_ animated: Bool) {

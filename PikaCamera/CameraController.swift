@@ -43,6 +43,7 @@ class CameraController: NSObject {
   var previewType:CameraControllePreviewType
   var previewFilter:CameraControllerPreviewFilter
   var previewBounds:CGRect
+  var previewTiles:[CGRect]
   var previewLayer:AVCaptureVideoPreviewLayer!
   var colorDetection:Bool = false
   var detectedColor:DetectedColor = .red
@@ -62,11 +63,12 @@ class CameraController: NSObject {
   
   // MARK: - Initialization
   
-  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, previewBounds:CGRect, delegate:CameraControllerDelegate) {
+  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, previewBounds:CGRect, previewTiles:[CGRect], delegate:CameraControllerDelegate) {
     self.delegate = delegate
     self.previewType = previewType
     self.previewFilter = previewFilter
     self.previewBounds = previewBounds
+    self.previewTiles = previewTiles
     
     super.init()
     initializeSession()
@@ -88,11 +90,9 @@ class CameraController: NSObject {
                                     completionHandler: { (granted:Bool) -> Void in
                                       if granted {
                                         self.configureSession()
-                                        print("auth granted")
                                       }
                                       else {
                                         self.showAccessDeniedMessage()
-                                        print("access denied")
                                       }
       })
     case .authorized:
@@ -201,51 +201,62 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
   func captureOutput(_ output: AVCaptureOutput,
                      didOutput sampleBuffer: CMSampleBuffer,
                      from connection: AVCaptureConnection){
-    
-    frameCounter += 1;
-    let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-    let frame = CIImage(cvPixelBuffer: pixelBuffer!)
-    
-    // Make a rect to crop to that's the size of the view we want to display the image in
-    let cropRect = AVMakeRect(aspectRatio: CGSize(width: previewBounds.width, height: previewBounds.height), insideRect: frame.extent)
-    // Crop
-    let croppedFrame = frame.cropped(to: cropRect)
-    // Cropping changes the origin coordinates of the cropped image, so move it back to 0
-    let translatedFrame = croppedFrame.transformed(by: CGAffineTransform(translationX: 0, y: -croppedFrame.extent.origin.y))
-
-    if (frameCounter % 5) == 0 && colorDetection {
-      let extent = translatedFrame.extent
-      let cropRect = CGRect(x:0, y:0, width:extent.width/3, height:extent.height/3)
-
-      let baseTile = translatedFrame.cropped(to: cropRect)
-      let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
+    sessionQueue.async { () -> Void in
+      self.frameCounter += 1;
+      let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+      let frame = CIImage(cvPixelBuffer: pixelBuffer!)
       
-      switch detectedColor {
-      case .red:
-        self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-          print(">>>>> is red detected: [\(String(describing: detected))]")
-        })
-      case .blue:
-        self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-          print(">>>>> is blue detected: [\(String(describing: detected))]")
-        })
-      case .yellow:
-        self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-          DispatchQueue.main.async { [unowned self] in
-            if detected {
-              self.delegate?.drawCircle(inRect: cropRect, color: UIColor.yellow)
-            }else{
-              self.delegate?.removeCircle()
-            }
+      // Make a rect to crop to that's the size of the view we want to display the image in
+      let cropRect = AVMakeRect(aspectRatio: CGSize(width: self.previewBounds.width, height: self.previewBounds.height), insideRect: frame.extent)
+      // Crop
+      let croppedFrame = frame.cropped(to: cropRect)
+      // Cropping changes the origin coordinates of the cropped image, so move it back to 0
+      let translatedFrame = croppedFrame.transformed(by: CGAffineTransform(translationX: 0, y: -croppedFrame.extent.origin.y))
+      
+      if (self.frameCounter % 15) == 0 && self.colorDetection {
+        for tile in self.previewTiles{          
+          let baseTile = translatedFrame.cropped(to: tile)
+          let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
+          
+          switch self.detectedColor {
+          case .red:
+            self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+              DispatchQueue.main.async { [unowned self] in
+                if detected {
+                  self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
+                }else{
+                  self.delegate?.removeCircle()
+                }
+              }
+            })
+          case .blue:
+            self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+              DispatchQueue.main.async { [unowned self] in
+                if detected {
+                  self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
+                }else{
+                  self.delegate?.removeCircle()
+                }
+              }
+            })
+          case .yellow:
+            self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+              DispatchQueue.main.async { [unowned self] in
+                if detected {
+                  self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
+                }else{
+                  self.delegate?.removeCircle()
+                }
+              }
+            })
           }
-        })
+        }
+        self.frameCounter = 0
       }
       
-      frameCounter = 0
+      let filtered = self.previewFilter == .monochrome ? translatedFrame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : translatedFrame
+      self.delegate?.cameraController(self, didOutputImage: filtered)
     }
-    
-    let filtered = previewFilter == .monochrome ? translatedFrame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : translatedFrame
-    self.delegate?.cameraController(self, didOutputImage: filtered)
   }
 }
 
@@ -280,12 +291,10 @@ private extension CameraController {
       
       self.currentCameraDevice = self.backCameraDevice
       let possibleCameraInput = try? AVCaptureDeviceInput(device: self.currentCameraDevice!)
-      print(">>>>> possibleCameraInput: \(String(describing: possibleCameraInput))")
       
       if let backCameraInput = possibleCameraInput {
         if self.session.canAddInput(backCameraInput) {
           self.session.addInput(backCameraInput)
-          print(">>>>> session added input from back camera")
         }
       }
     }
@@ -316,11 +325,9 @@ private extension CameraController {
       
       if self.session.canAddOutput(self.videoOutput) {
         self.session.addOutput(self.videoOutput)
-        print(">>>>> added video output to session")
       }
       
       if let connection = self.videoOutput.connection(with: AVMediaType.video) {
-        print(">>>>> connection \(connection)")
         if connection.isVideoStabilizationSupported {
           connection.preferredVideoStabilizationMode = .auto
         }
