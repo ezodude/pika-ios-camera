@@ -26,6 +26,8 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   fileprivate var glContext:EAGLContext?
   fileprivate var ciContext:CIContext?
   fileprivate var gridView: CameraGridView!
+  fileprivate var gridViewColorDots: [String:UIView] = [:]
+  
   fileprivate var glView:GLKView {
     get {
       return videoPreviewView
@@ -43,6 +45,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     glView.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi / 2))
     glView.frame = videoPreviewView.bounds
     gridView = CameraGridView.init(frame: videoPreviewView.bounds)
+    buildGridColorDotViews(for: gridView.tiles)
     glView.insertSubview(gridView, at: 1)
     
     ciContext = CIContext(eaglContext: glContext!)
@@ -126,14 +129,40 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   }
   
   func drawCircle(inRect: CGRect, color:UIColor) {
-    gridView.showCircle = true
-    gridView.showCircleRect = inRect
-    gridView.showCircleColor = color
-    gridView.setNeedsDisplay()
+    let key = getKey(inRect)
+    let dot = gridViewColorDots[key]
+    dot?.layer.backgroundColor = color.cgColor
+    dot?.layer.opacity = 1
+    
+    UIView.animate(withDuration: 0.3) {
+      dot?.layer.opacity = 0
+      dot?.layer.backgroundColor = UIColor.clear.cgColor
+    }
   }
   
-  func removeCircle() {
-    gridView.showCircle = false
-    gridView.setNeedsDisplay()
+  // Mark: Private helpers
+  
+  func getKey(_ rect:CGRect) -> String {
+    return "\(rect.origin.x)::\(rect.origin.y)"
+  }
+  
+  func buildGridColorDotViews(for tiles:[CGRect]) {
+    let size:CGFloat = 30.0
+    
+    for tile in tiles {
+      let x = tile.origin.x + (tile.size.width / 2.0)
+      let y = tile.origin.y + (tile.size.height / 2.0)
+      let dotView = UIView(frame: CGRect(x: x, y: y, width: size, height: size))
+      let saveCenter:CGPoint = dotView.center;
+      
+      dotView.layer.cornerRadius = size / 2.0;
+      dotView.clipsToBounds = true
+      dotView.center = saveCenter
+      dotView.layer.opacity = 0.0
+      
+      let key = getKey(tile)
+      gridViewColorDots[key] = dotView
+      gridView.insertSubview(dotView, at:1)
+    }
   }
 }
