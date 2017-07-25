@@ -151,7 +151,8 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     
     for tile in tiles {
       let x = tile.origin.x + (tile.size.width / 2.0)
-      let y = tile.origin.y + (tile.size.height / 2.0)
+      let y = tile.origin.y + (tile.size.height / 2.0) - (size / 2.0)
+      
       let dotView = UIView(frame: CGRect(x: x, y: y, width: size, height: size))
       let saveCenter:CGPoint = dotView.center;
       
