@@ -30,10 +30,9 @@
     NSString *modelPath = [[NSBundle mainBundle] pathForResource:title ofType:@"json"];
     
     const CFIndex MODEL_NAME_LEN = 2048;
-    char *MODEL_NAME = (char *) malloc(MODEL_NAME_LEN);
+    char MODEL_NAME[ MODEL_NAME_LEN ];
     CFStringGetFileSystemRepresentation( (CFStringRef)modelPath, MODEL_NAME, MODEL_NAME_LEN);
     _colorClassifier = std::make_shared<ColorClassifier>(MODEL_NAME);
-    free(MODEL_NAME);
   }
   
   return self;
