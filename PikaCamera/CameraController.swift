@@ -205,7 +205,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     // Cropping changes the origin coordinates of the cropped image, so move it back to 0
     let translatedFrame = scaledFrame.transformed(by: CGAffineTransform(translationX: 0, y: -scaledFrame.extent.origin.y))
     
-    if (self.frameCounter % 20) == 0 && self.colorDetection {
+    if (self.frameCounter % 15) == 0 && self.colorDetection {
       let reScaleXFactor = translatedFrame.extent.width / self.previewBounds.width
       let reScaleYFactor = translatedFrame.extent.height / self.previewBounds.height
       let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
@@ -220,7 +220,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
           self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
             DispatchQueue.main.async { [unowned self] in
               if detected {
-                print("Red Detected:[\(String(detected))]")
+//                print("Red Detected:[\(String(detected))] in tile:[\(tile)]")
                 self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
               }
             }
@@ -229,7 +229,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
           self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
             DispatchQueue.main.async { [unowned self] in
               if detected {
-                print("Blue Detected:[\(String(detected))]")
+//                print("Blue Detected:[\(String(detected))] in tile:[\(tile)]")
                 self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
               }
             }
@@ -238,7 +238,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
           self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
             DispatchQueue.main.async { [unowned self] in
               if detected {
-                print("Yellow Detected:[\(String(detected))]")
+//                print("Yellow Detected:[\(String(detected))] in tile:[\(tile)]")
                 self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
               }
             }
