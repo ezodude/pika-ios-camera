@@ -196,59 +196,50 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
     let frame = CIImage(cvPixelBuffer: pixelBuffer!)
     
-    // Make a rect to crop to that's the size of the view we want to display the image in
-    let scaledRect = AVMakeRect(aspectRatio: CGSize(width: self.previewBounds.width, height: self.previewBounds.height), insideRect: frame.extent)
-
-    // Crop
-    let scaledFrame = frame.cropped(to: scaledRect)
+//    if (self.frameCounter % 15) == 0 && self.colorDetection {
+//      let reScaleXFactor = translatedFrame.extent.width / self.previewBounds.width
+//      let reScaleYFactor = translatedFrame.extent.height / self.previewBounds.height
+//      let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
+//
+//      for tile in self.previewTiles{
+//        let rescaledTile = tile.applying(rescaleTransform)
+//        let baseTile = translatedFrame.cropped(to: rescaledTile)
+//        let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
+//
+//        switch self.detectedColor {
+//        case .red:
+//          self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+//            DispatchQueue.main.async { [unowned self] in
+//              if detected {
+////                print("Red Detected:[\(String(detected))] in tile:[\(tile)]")
+//                self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
+//              }
+//            }
+//          })
+//        case .blue:
+//          self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+//            DispatchQueue.main.async { [unowned self] in
+//              if detected {
+////                print("Blue Detected:[\(String(detected))] in tile:[\(tile)]")
+//                self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
+//              }
+//            }
+//          })
+//        case .yellow:
+//          self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+//            DispatchQueue.main.async { [unowned self] in
+//              if detected {
+////                print("Yellow Detected:[\(String(detected))] in tile:[\(tile)]")
+//                self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
+//              }
+//            }
+//          })
+//        }
+//      }
+//      self.frameCounter = 0
+//    }
     
-    // Cropping changes the origin coordinates of the cropped image, so move it back to 0
-    let translatedFrame = scaledFrame.transformed(by: CGAffineTransform(translationX: 0, y: -scaledFrame.extent.origin.y))
-    
-    if (self.frameCounter % 15) == 0 && self.colorDetection {
-      let reScaleXFactor = translatedFrame.extent.width / self.previewBounds.width
-      let reScaleYFactor = translatedFrame.extent.height / self.previewBounds.height
-      let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
-
-      for tile in self.previewTiles{
-        let rescaledTile = tile.applying(rescaleTransform)
-        let baseTile = translatedFrame.cropped(to: rescaledTile)
-        let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
-        
-        switch self.detectedColor {
-        case .red:
-          self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-            DispatchQueue.main.async { [unowned self] in
-              if detected {
-//                print("Red Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
-              }
-            }
-          })
-        case .blue:
-          self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-            DispatchQueue.main.async { [unowned self] in
-              if detected {
-//                print("Blue Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
-              }
-            }
-          })
-        case .yellow:
-          self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-            DispatchQueue.main.async { [unowned self] in
-              if detected {
-//                print("Yellow Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
-              }
-            }
-          })
-        }
-      }
-      self.frameCounter = 0
-    }
-    
-    let filtered = self.previewFilter == .monochrome ? translatedFrame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : translatedFrame
+    let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
     
     self.delegate?.cameraController(self, didOutputImage: filtered)
   }
