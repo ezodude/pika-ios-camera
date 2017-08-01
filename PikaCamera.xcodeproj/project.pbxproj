@@ -52,7 +52,6 @@
 		1F83A30F1F0A821C00829CF7 /* PikaCameraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PikaCameraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F83A3131F0A821C00829CF7 /* PikaCameraTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PikaCameraTests.swift; sourceTree = "<group>"; };
 		1F83A3151F0A821C00829CF7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1F8987BB1F30931400F8408C /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		1F9066321F250660008CB499 /* CameraGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraGridView.swift; sourceTree = "<group>"; };
 		75F9D29F8F09055C0839E7E7 /* Pods-PikaCamera.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PikaCamera.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PikaCamera/Pods-PikaCamera.debug.xcconfig"; sourceTree = "<group>"; };
 		8060136F77CBFF0763844F4F /* Pods-PikaCamera.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PikaCamera.release.xcconfig"; path = "Pods/Target Support Files/Pods-PikaCamera/Pods-PikaCamera.release.xcconfig"; sourceTree = "<group>"; };
@@ -163,7 +162,6 @@
 		B0A5EDB910CA4656CDD3BBE1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1F8987BB1F30931400F8408C /* Accelerate.framework */,
 				CDAC290F903A41DBE4994722 /* Pods_PikaCamera.framework */,
 				A6C8F1D298644496F7A565E5 /* Pods_PikaCameraTests.framework */,
 			);
