@@ -197,14 +197,15 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     let frame = CIImage(cvPixelBuffer: pixelBuffer!)
     
 //    if (self.frameCounter % 15) == 0 && self.colorDetection {
-//      let reScaleXFactor = translatedFrame.extent.width / self.previewBounds.width
-//      let reScaleYFactor = translatedFrame.extent.height / self.previewBounds.height
-//      let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
-//
-//      for tile in self.previewTiles{
-//        let rescaledTile = tile.applying(rescaleTransform)
-//        let baseTile = translatedFrame.cropped(to: rescaledTile)
-//        let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
+    if self.colorDetection {
+      let reScaleXFactor = self.previewBounds.width / frame.extent.width
+      let reScaleYFactor = self.previewBounds.height / frame.extent.height
+      let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
+      let rescaledFrame = frame.transformed(by: rescaleTransform)
+
+      for tile in self.previewTiles{
+        let baseTile = rescaledFrame.cropped(to: tile)
+        let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
 //
 //        switch self.detectedColor {
 //        case .red:
@@ -235,9 +236,9 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
 //            }
 //          })
 //        }
-//      }
-//      self.frameCounter = 0
-//    }
+      }
+      self.frameCounter = 0
+    }
     
     let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
     
