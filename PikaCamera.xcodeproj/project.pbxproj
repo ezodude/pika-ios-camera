@@ -86,7 +86,6 @@
 			children = (
 				1F0ADA591F1E5E8B00CBCFA6 /* CCWrapper.h */,
 				1F0ADA571F1E5E5F00CBCFA6 /* CCWrapper.mm */,
-				1F596AE41F1EA5F300146C0F /* PikaCamera-Bridging-Header.h */,
 				1F47E5ED1F1F574E00043AA3 /* color_statistic.json */,
 				1F47E5EF1F1FA71700043AA3 /* ColorClassifier.h */,
 				1F47E5F01F1FA73700043AA3 /* ColorClassifier.cpp */,
@@ -117,6 +116,7 @@
 		1F83A2FD1F0A821C00829CF7 /* PikaCamera */ = {
 			isa = PBXGroup;
 			children = (
+				1F596AE41F1EA5F300146C0F /* PikaCamera-Bridging-Header.h */,
 				1F0ADA521F1E5DBA00CBCFA6 /* Ml */,
 				1F9066311F2505E2008CB499 /* Views */,
 				1F83A2FE1F0A821C00829CF7 /* AppDelegate.swift */,
@@ -536,7 +536,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.joinpika.PikaCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "PikaCamera/Ml/PikaCamera-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "PikaCamera/PikaCamera-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -554,7 +554,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.joinpika.PikaCamera;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "PikaCamera/Ml/PikaCamera-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "PikaCamera/PikaCamera-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
