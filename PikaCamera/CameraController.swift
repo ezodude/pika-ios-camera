@@ -196,8 +196,8 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
     let frame = CIImage(cvPixelBuffer: pixelBuffer!)
     
-//    if (self.frameCounter % 15) == 0 && self.colorDetection {
-    if self.colorDetection {
+    if (self.frameCounter % 15) == 0 && self.colorDetection {
+//    if self.colorDetection {
       let reScaleXFactor = self.previewBounds.width / frame.extent.width
       let reScaleYFactor = self.previewBounds.height / frame.extent.height
       let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
@@ -207,35 +207,35 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
         let baseTile = rescaledFrame.cropped(to: tile)
         let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
 //
-//        switch self.detectedColor {
-//        case .red:
-//          self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-//            DispatchQueue.main.async { [unowned self] in
-//              if detected {
-////                print("Red Detected:[\(String(detected))] in tile:[\(tile)]")
-//                self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
-//              }
-//            }
-//          })
-//        case .blue:
-//          self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-//            DispatchQueue.main.async { [unowned self] in
-//              if detected {
-////                print("Blue Detected:[\(String(detected))] in tile:[\(tile)]")
-//                self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
-//              }
-//            }
-//          })
-//        case .yellow:
-//          self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-//            DispatchQueue.main.async { [unowned self] in
-//              if detected {
-////                print("Yellow Detected:[\(String(detected))] in tile:[\(tile)]")
-//                self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
-//              }
-//            }
-//          })
-//        }
+        switch self.detectedColor {
+        case .red:
+          self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+            DispatchQueue.main.async { [unowned self] in
+              if detected {
+//                print("Red Detected:[\(String(detected))] in tile:[\(tile)]")
+                self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
+              }
+            }
+          })
+        case .blue:
+          self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+            DispatchQueue.main.async { [unowned self] in
+              if detected {
+//                print("Blue Detected:[\(String(detected))] in tile:[\(tile)]")
+                self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
+              }
+            }
+          })
+        case .yellow:
+          self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+            DispatchQueue.main.async { [unowned self] in
+              if detected {
+//                print("Yellow Detected:[\(String(detected))] in tile:[\(tile)]")
+                self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
+              }
+            }
+          })
+        }
       }
       self.frameCounter = 0
     }
