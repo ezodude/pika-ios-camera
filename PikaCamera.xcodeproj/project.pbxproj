@@ -18,7 +18,6 @@
 		1F83A3061F0A821C00829CF7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3051F0A821C00829CF7 /* Assets.xcassets */; };
 		1F83A3091F0A821C00829CF7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F83A3071F0A821C00829CF7 /* LaunchScreen.storyboard */; };
 		1F83A3141F0A821C00829CF7 /* PikaCameraTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F83A3131F0A821C00829CF7 /* PikaCameraTests.swift */; };
-		1F8987BC1F30933700F8408C /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F8987BB1F30931400F8408C /* Accelerate.framework */; };
 		1F9066331F250660008CB499 /* CameraGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9066321F250660008CB499 /* CameraGridView.swift */; };
 		F7D27970086950678ABB2F80 /* Pods_PikaCamera.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDAC290F903A41DBE4994722 /* Pods_PikaCamera.framework */; };
 		FCDCF8C5A3C1B0C69FA6A55D /* Pods_PikaCameraTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A6C8F1D298644496F7A565E5 /* Pods_PikaCameraTests.framework */; };
@@ -68,7 +67,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F8987BC1F30933700F8408C /* Accelerate.framework in Frameworks */,
 				F7D27970086950678ABB2F80 /* Pods_PikaCamera.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
