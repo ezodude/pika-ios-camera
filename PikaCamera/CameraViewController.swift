@@ -26,7 +26,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   fileprivate var glContext:EAGLContext?
   fileprivate var ciContext:CIContext?
   fileprivate var gridView: CameraGridView!
-  fileprivate var gridViewColorDots: [String:UIView] = [:]
+  fileprivate var gridViewColorDots: [UIView] = []
   
   fileprivate var glView:GLKView {
     get {
@@ -49,7 +49,7 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     glView.insertSubview(gridView, at: 1)
     
     ciContext = CIContext(eaglContext: glContext!)
-    cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, previewBounds: videoPreviewView.bounds, previewTiles: gridView.tiles, delegate: self)
+    cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, delegate: self)
   }
   
   override func viewDidAppear(_ animated: Bool) {
@@ -128,22 +128,16 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     }
   }
   
-  func drawCircle(inRect: CGRect, color:UIColor) {
-    let key = getKey(inRect)
-    let dot = gridViewColorDots[key]
-    dot?.layer.backgroundColor = color.cgColor
-    dot?.layer.opacity = 1
+  func drawCircle(index: Int, color: UIColor) {
+    let dot = gridViewColorDots[index]
+    print("tileIndex:[\(index)].")
+    dot.layer.backgroundColor = color.cgColor
+    dot.layer.opacity = 1
     
     UIView.animate(withDuration: 0.3) {
-      dot?.layer.opacity = 0
-      dot?.layer.backgroundColor = UIColor.clear.cgColor
+      dot.layer.opacity = 0
+      dot.layer.backgroundColor = UIColor.clear.cgColor
     }
-  }
-  
-  // Mark: Private helpers
-  
-  func getKey(_ rect:CGRect) -> String {
-    return "\(rect.origin.x)::\(rect.origin.y)"
   }
   
   func buildGridColorDotViews(for tiles:[CGRect]) {
@@ -160,9 +154,9 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
       dotView.clipsToBounds = true
       dotView.center = saveCenter
       dotView.layer.opacity = 0.0
-      
-      let key = getKey(tile)
-      gridViewColorDots[key] = dotView
+//      let key = getKey(tile)
+//      gridViewColorDots[i + 1] = dotView
+      gridViewColorDots.append(dotView)
       gridView.insertSubview(dotView, at:1)
     }
   }

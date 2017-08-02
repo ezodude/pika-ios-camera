@@ -34,15 +34,14 @@ protocol CameraControllerDelegate : class {
   func cameraController(_ cameraController:CameraController, didOutputImage: CIImage)
   func cameraAccessDenied()
   func willCapturePhotoAnimation()
-  func drawCircle(inRect: CGRect, color:UIColor)
+  func drawCircle(index: Int, color:UIColor)
 }
 
 class CameraController: NSObject {
   weak var delegate:CameraControllerDelegate?
   var previewType:CameraControllePreviewType
   var previewFilter:CameraControllerPreviewFilter
-  var previewBounds:CGRect
-  var previewTiles:[CGRect]
+  var previewTiles:[CGRect] = []
   var previewLayer:AVCaptureVideoPreviewLayer!
   var colorDetection:Bool = false
   var detectedColor:DetectedColor = .red
@@ -62,12 +61,10 @@ class CameraController: NSObject {
   
   // MARK: - Initialization
   
-  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, previewBounds:CGRect, previewTiles:[CGRect], delegate:CameraControllerDelegate) {
+  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, delegate:CameraControllerDelegate) {
     self.delegate = delegate
     self.previewType = previewType
     self.previewFilter = previewFilter
-    self.previewBounds = previewBounds
-    self.previewTiles = previewTiles
     
     super.init()
     initializeSession()
@@ -196,24 +193,22 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
     let frame = CIImage(cvPixelBuffer: pixelBuffer!)
     
-    if (self.frameCounter % 15) == 0 && self.colorDetection {
-//    if self.colorDetection {
-      let reScaleXFactor = self.previewBounds.width / frame.extent.width
-      let reScaleYFactor = self.previewBounds.height / frame.extent.height
-      let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
-      let rescaledFrame = frame.transformed(by: rescaleTransform)
-
-      for tile in self.previewTiles{
-        let baseTile = rescaledFrame.cropped(to: tile)
-        let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
-//
+//    if (self.frameCounter % 15) == 0 && self.colorDetection {
+    if self.colorDetection {
+      let tilesContext = CIContext()
+      
+//      for rect in self.previewTiles{
+      for index in 0..<(self.previewTiles.count) {
+        let rect = self.previewTiles[index]
+        let cgTile = tilesContext.createCGImage(frame, from: rect)
+        
         switch self.detectedColor {
         case .red:
           self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
             DispatchQueue.main.async { [unowned self] in
               if detected {
 //                print("Red Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
+                self.delegate?.drawCircle(index: index, color: UIColor.red)
               }
             }
           })
@@ -222,7 +217,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
             DispatchQueue.main.async { [unowned self] in
               if detected {
 //                print("Blue Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
+                self.delegate?.drawCircle(index: index, color: UIColor.blue)
               }
             }
           })
@@ -231,7 +226,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
             DispatchQueue.main.async { [unowned self] in
               if detected {
 //                print("Yellow Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
+                self.delegate?.drawCircle(index: index, color: UIColor.yellow)
               }
             }
           })
@@ -263,6 +258,7 @@ private extension CameraController {
     //
     if previewType == .manual {
       configureVideoOutput()
+      generateVideoOutputTiles()
     }
     self.session.commitConfiguration()
   }
@@ -306,6 +302,7 @@ private extension CameraController {
   func configureVideoOutput() {
     performConfiguration { () -> Void in
       self.videoOutput = AVCaptureVideoDataOutput()
+      self.videoOutput.videoSettings = nil
       self.videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.joinpika.video_out_queue", attributes: []))
       self.videoOutput.alwaysDiscardsLateVideoFrames = true
       
@@ -322,6 +319,31 @@ private extension CameraController {
       }
     }
   }
+  
+  func generateVideoOutputTiles() {
+    performConfiguration { () -> Void in
+      guard self.videoOutput.connection(with: AVMediaType.video) != nil else {
+        return
+      }
+      let outputWidth = self.videoOutput.videoSettings!["Width"] as! CGFloat
+      let outputHeight = self.videoOutput.videoSettings!["Height"] as! CGFloat
+      
+      let tileWidth:CGFloat = outputWidth / 3.0;
+      let tileHeight:CGFloat = outputHeight / 3.0;
+      var mirroredTiles:[[CGRect]] = []
+      
+      for cols in 0...2 {
+        var temp:[CGRect] = []
+        for rows in 0...2 {
+          temp.append(CGRect(x: CGFloat(cols) * tileWidth, y: CGFloat(rows) * tileHeight, width: tileWidth, height: tileHeight))
+        }
+        mirroredTiles.append(temp.reversed())
+      }
+      
+      self.previewTiles = Array(mirroredTiles.joined())
+    }
+  }
+
   
   func observeValues() {
   }
