@@ -58,6 +58,7 @@ class CameraController: NSObject {
   fileprivate var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
   fileprivate var videoOutput:AVCaptureVideoDataOutput!
   fileprivate var frameCounter:Int = 0
+  fileprivate var ciContext:CIContext?
   
   // MARK: - Initialization
   
@@ -195,12 +196,10 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     
 //    if (self.frameCounter % 15) == 0 && self.colorDetection {
     if self.colorDetection {
-      let tilesContext = CIContext()
-      
 //      for rect in self.previewTiles{
       for index in 0..<(self.previewTiles.count) {
         let rect = self.previewTiles[index]
-        let cgTile = tilesContext.createCGImage(frame, from: rect)
+        let cgTile = ciContext?.createCGImage(frame, from: rect)
         
         switch self.detectedColor {
         case .red:
@@ -314,6 +313,7 @@ private extension CameraController {
         if connection.isVideoStabilizationSupported {
           connection.preferredVideoStabilizationMode = .auto
         }
+        self.ciContext = CIContext()
       }else{
         print(">>>>> no connection")
       }
