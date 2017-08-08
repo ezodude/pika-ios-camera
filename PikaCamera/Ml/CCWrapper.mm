@@ -15,7 +15,8 @@
 }
 - (std::vector<std::vector<std::vector<unsigned char>>>)colorsToVector:(NSArray*)colors;
 
-- (NSArray*)getRGBAsFromImage:(UIImage*)image;
+//- (NSArray*)getRGBAsFromImage:(UIImage*)image;
+- (NSArray*)getRGBAsFromImage:(id)cgImageAsObject;
 
 @property (strong, atomic) dispatch_queue_t classifierQueue;
 @end
@@ -38,27 +39,30 @@
   return self;
 }
 
-- (void)isRed:(UIImage*)tile completion:(CCHandler) handler{
+//- (void)isRed:(UIImage*)tile completion:(CCHandler) handler{
+//- (void)isRed:(CGImageRef)tile completion:(CCHandler) handler{
+- (void)isRed:(NSArray *)colors completion:(CCHandler) handler{
+//  id cgTileAsObject = (__bridge id)tile;
   dispatch_async(self.classifierQueue, ^{
-    NSArray *colors = [self getRGBAsFromImage:tile];
-    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:colors];
+//    NSArray *colors = [self getRGBAsFromImage:cgTileAsObject];
+    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:[NSArray arrayWithObjects: colors, nil]];
     handler((bool)_colorClassifier->is_red(colorsASVectors, 0.18));
   });
 }
 
 - (void)isBlue:(UIImage*)tile completion:(CCHandler) handler{
   dispatch_async(self.classifierQueue, ^{
-    NSArray *colors = [self getRGBAsFromImage:tile];
-    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:colors];
-    handler((bool)_colorClassifier->is_blue(colorsASVectors, 0.18));
+//    NSArray *colors = [self getRGBAsFromImage:tile];
+//    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:colors];
+//    handler((bool)_colorClassifier->is_blue(colorsASVectors, 0.18));
   });
 }
 
 - (void)isYellow:(UIImage*)tile completion:(CCHandler) handler{
   dispatch_async(self.classifierQueue, ^{
-    NSArray *colors = [self getRGBAsFromImage:tile];
-    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:colors];
-    handler((bool)_colorClassifier->is_yellow(colorsASVectors, 0.18));
+//    NSArray *colors = [self getRGBAsFromImage:tile];
+//    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:colors];
+//    handler((bool)_colorClassifier->is_yellow(colorsASVectors, 0.18));
   });
 }
 
@@ -66,15 +70,17 @@
   return [NSArray arrayWithObject: [NSNumber numberWithDouble:1.5]];
 }
 
-- (NSArray*)getRGBAsFromImage:(UIImage*)image
+//- (NSArray*)getRGBAsFromImage:(UIImage*)image
+- (NSArray*)getRGBAsFromImage:(id)cgImageAsObject
 {
   int x = 0;
   int y = 0;
   
   // First get the image into your data buffer
-  CGImageRef imageRef = [image CGImage];
-  NSUInteger width = CGImageGetWidth(imageRef);
-  NSUInteger height = CGImageGetHeight(imageRef);
+//  CGImageRef imageRef = [image CGImage];
+  CGImageRef image = (__bridge CGImageRef)cgImageAsObject;
+  NSUInteger width = CGImageGetWidth(image);
+  NSUInteger height = CGImageGetHeight(image);
   NSUInteger count = width * height;
   
   CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
@@ -87,7 +93,8 @@
                                                kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
   CGColorSpaceRelease(colorSpace);
   
-  CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+//  CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+  CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
   CGContextRelease(context);
   
   // Now your rawData contains the image data in the RGBA8888 pixel format.
@@ -96,9 +103,17 @@
   for (int i = 0 ; i < count ; ++i)
   {
     CGFloat alpha = ((CGFloat) rawData[byteIndex + 3] ) / 255.0f;
-    CGFloat red   = ((CGFloat) rawData[byteIndex]     ) / alpha;
+    NSLog(@"alpha - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 3], alpha);
+    
+    CGFloat red = ((CGFloat) rawData[byteIndex]     ) / alpha;
+    NSLog(@"red - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex], red);
+    
     CGFloat green = ((CGFloat) rawData[byteIndex + 1] ) / alpha;
+    NSLog(@"green - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 1], green);
+    
     CGFloat blue  = ((CGFloat) rawData[byteIndex + 2] ) / alpha;
+    NSLog(@"blue - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 2], blue);
+    
     byteIndex += bytesPerPixel;
     
     NSArray *pixelColors = [NSArray arrayWithObjects:
