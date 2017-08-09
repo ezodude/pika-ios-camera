@@ -201,67 +201,43 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
       let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
       self.delegate?.cameraController(self, didOutputImage: filtered)
     }
-
-    self.frameCounter += 1;
-//    if (self.frameCounter % 15) == 0 && self.colorDetection {
-    if self.colorDetection {
     
-//      for rect in self.previewTiles{
-      for index in 0..<(self.previewTiles.count) {
-        let rect = self.previewTiles[index]
-        let colorAverageFilter = CIFilter(name: "CIAreaMaximum", withInputParameters:[
-          kCIInputImageKey: frame,
-          kCIInputExtentKey: rect
+    if self.colorDetection {
+      self.frameCounter = (self.frameCounter % self.previewTiles.count) == 0 ? 1 : self.frameCounter + 1;
+      let index = self.frameCounter - 1
+      let rect = self.previewTiles[index]
+      
+      let colorAverageFilter = CIFilter(name: "CIAreaMaximum", withInputParameters:[
+        kCIInputImageKey: frame,
+        kCIInputExtentKey: rect
         ])!
-        let averageColor = colorAverageFilter.outputImage!
-        
-        ciContext?.render(averageColor, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: averageColor.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
-
-        let bitmapUnsafePointer = self.bitmap?.assumingMemoryBound(to: UInt8.self)
-        let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: self.totalRGBBytes)
-        let alpha = CGFloat(rgba[3]) / 255.0
-        let red = CGFloat(rgba[0]) / alpha
-        let green = CGFloat(rgba[1]) / alpha
-        let blue = CGFloat(rgba[2]) / alpha
-
-//        let cgTile = ciContext?.createCGImage(averageColor, from: averageColor.extent)
-//
-        switch self.detectedColor {
-        case .red:
-//          self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-//          self.ccWrapper?.isRed(cgTile!, completion: { (detected: Bool) in
-          self.ccWrapper?.isRed([NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))], completion: { (detected: Bool) in
-            DispatchQueue.main.async { [unowned self] in
-              if detected {
-                print("Red Detected:[\(String(detected))]")
-//                self.delegate?.drawCircle(index: index, color: UIColor.red)
-              }
+      let averageColor = colorAverageFilter.outputImage!
+      
+      ciContext?.render(averageColor, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: averageColor.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
+      
+      let bitmapUnsafePointer = self.bitmap?.assumingMemoryBound(to: UInt8.self)
+      let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: self.totalRGBBytes)
+      let alpha = CGFloat(rgba[3]) / 255.0
+      let red = CGFloat(rgba[0]) / alpha
+      let green = CGFloat(rgba[1]) / alpha
+      let blue = CGFloat(rgba[2]) / alpha
+      let rgb = [NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))]
+      
+      switch self.detectedColor {
+      case .red:
+        self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
+//          DispatchQueue.main.async { [unowned self] in
+            if detected {
+              print("Red Detected:[\(String(detected))]")
+              // self.delegate?.drawCircle(index: index, color: UIColor.red)
             }
-          })
-        case .blue:
-//          self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-//            DispatchQueue.main.async { [unowned self] in
-//              if detected {
-//                print("Blue Detected:[\(String(detected))]")
-                print("Blue Detected")
-////                self.delegate?.drawCircle(index: index, color: UIColor.blue)
-//              }
-//            }
-//          })
-//        case .yellow:
-//          self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-//            DispatchQueue.main.async { [unowned self] in
-//              if detected {
-//                print("Yellow Detected:[\(String(detected))]")
-////                self.delegate?.drawCircle(index: index, color: UIColor.yellow)
-//              }
-//            }
-//          })
-        case .yellow:
-          print("Yellow Detected")
-        }
+//          }
+        })
+      case .blue:
+        print("Blue Detected")
+      case .yellow:
+        print("Yellow Detected")
       }
-      self.frameCounter = 0
     }
   }
 }
@@ -369,7 +345,6 @@ private extension CameraController {
       self.previewTiles = Array(mirroredTiles.joined())
     }
   }
-
   
   func observeValues() {
   }
