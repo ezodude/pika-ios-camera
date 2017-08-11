@@ -207,7 +207,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
       let index = self.frameCounter - 1
       let rect = self.previewTiles[index]
       
-      let colorAverageFilter = CIFilter(name: "CIAreaMaximum", withInputParameters:[
+      let colorAverageFilter = CIFilter(name: "CIAreaAverage", withInputParameters:[
         kCIInputImageKey: frame,
         kCIInputExtentKey: rect
         ])!
