@@ -8,6 +8,7 @@
 
 import AVFoundation
 import CoreImage
+import Accelerate
 import UIKit
 
 let CameraControllerDidStartSession = "CameraControllerDidStartSession"
@@ -193,50 +194,39 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
   func captureOutput(_ output: AVCaptureOutput,
                      didOutput sampleBuffer: CMSampleBuffer,
                      from connection: AVCaptureConnection){
-    
-    let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-    let frame = CIImage(cvPixelBuffer: pixelBuffer!)
-    
-    DispatchQueue.main.async { [unowned self] in
-      let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
-      self.delegate?.cameraController(self, didOutputImage: filtered)
-    }
-    
-    if self.colorDetection {
-      self.frameCounter = (self.frameCounter % self.previewTiles.count) == 0 ? 1 : self.frameCounter + 1;
-      let index = self.frameCounter - 1
-      let rect = self.previewTiles[index]
+    sessionQueue.async { () -> Void in
+      let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+      let frame = CIImage(cvPixelBuffer: pixelBuffer!)
+  
+      DispatchQueue.main.async { [unowned self] in
+        let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
+        self.delegate?.cameraController(self, didOutputImage: filtered)
+      }
       
-      let colorAverageFilter = CIFilter(name: "CIAreaMaximum", withInputParameters:[
-        kCIInputImageKey: frame,
-        kCIInputExtentKey: rect
-        ])!
-      let averageColor = colorAverageFilter.outputImage!
-      
-      ciContext?.render(averageColor, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: averageColor.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
-      
-      let bitmapUnsafePointer = self.bitmap?.assumingMemoryBound(to: UInt8.self)
-      let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: self.totalRGBBytes)
-      let alpha = CGFloat(rgba[3]) / 255.0
-      let red = CGFloat(rgba[0]) / alpha
-      let green = CGFloat(rgba[1]) / alpha
-      let blue = CGFloat(rgba[2]) / alpha
-      let rgb = [NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))]
-      
-      switch self.detectedColor {
-      case .red:
-        self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
-//          DispatchQueue.main.async { [unowned self] in
+      if self.colorDetection {
+        self.frameCounter = (self.frameCounter % self.previewTiles.count) == 0 ? 1 : self.frameCounter + 1;
+        let index = self.frameCounter - 1
+        let cropRect = self.previewTiles[index]
+        let scaleSize = CGSize(width: cropRect.size.width / 4.0, height: cropRect.size.height / 4.0)
+        let cgTile = self.cropAndScale(sampleBuffer: sampleBuffer, cropRect: cropRect, scaleSize: scaleSize)
+        print("cgTile:[\(String(describing: cgTile))]")
+        
+        switch self.detectedColor {
+        case .red:
+          //        self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
+          self.ccWrapper?.isRed(cgTile!, completion: { (detected: Bool) in
+            //          DispatchQueue.main.async { [unowned self] in
             if detected {
               print("Red Detected:[\(String(detected))]")
               // self.delegate?.drawCircle(index: index, color: UIColor.red)
             }
-//          }
-        })
-      case .blue:
-        print("Blue Detected")
-      case .yellow:
-        print("Yellow Detected")
+            //          }
+          })
+        case .blue:
+          print("Blue Detected")
+        case .yellow:
+          print("Yellow Detected")
+        }
       }
     }
   }
@@ -344,6 +334,51 @@ private extension CameraController {
       
       self.previewTiles = Array(mirroredTiles.joined())
     }
+  }
+  
+  func cropAndScale(sampleBuffer: CMSampleBuffer, cropRect:CGRect, scaleSize:CGSize) -> CGImage?
+  {
+    let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+    CVPixelBufferLockBaseAddress(imageBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+    
+    let baseAddress = CVPixelBufferGetBaseAddress(imageBuffer!)
+    let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer!)
+//    let startpos = Int(cropRect.origin.y) * (bytesPerRow + 4) * Int(cropRect.origin.x);/
+    let startpos = 0;
+    
+    var inBuff = vImage_Buffer()
+    inBuff.height = vImagePixelCount(Int(cropRect.size.height))
+    inBuff.width = vImagePixelCount(Int(cropRect.size.width))
+    inBuff.rowBytes = bytesPerRow
+    inBuff.data = baseAddress?.advanced(by: startpos)
+    
+    let pointerAllocation = 4 * scaleSize.width * scaleSize.height
+    let outImg = UnsafeMutablePointer<UInt8>.allocate(capacity: Int(pointerAllocation))
+    defer {
+      outImg.deallocate(capacity: Int(pointerAllocation))
+    }
+    var outBuff = vImage_Buffer(data: outImg, height: vImagePixelCount(scaleSize.height), width: vImagePixelCount(scaleSize.width), rowBytes: Int(4.0 * scaleSize.width))
+    print("inBuff[\(String(describing: inBuff))]")
+    print("outBuff[\(String(describing: outBuff))]")
+    var error = vImageScale_ARGB8888(&inBuff, &outBuff, nil, 0)
+    print("error[\(String(describing: error))]")
+    guard error == kvImageNoError else {
+      CVPixelBufferUnlockBaseAddress(imageBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+      return nil
+    }
+    
+    var format = vImage_CGImageFormat(bitsPerComponent: 8, bitsPerPixel: 32, colorSpace: nil,
+                                      bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.first.rawValue),
+                                      version: 0, decode: nil, renderingIntent: CGColorRenderingIntent.defaultIntent)
+    let result = vImageCreateCGImageFromBuffer(&outBuff, &format, nil, nil, numericCast(kvImageNoFlags), &error)?.takeRetainedValue()
+    
+    guard error == kvImageNoError else {
+      CVPixelBufferUnlockBaseAddress(imageBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+      return nil
+    }
+
+    CVPixelBufferUnlockBaseAddress(imageBuffer!, CVPixelBufferLockFlags(rawValue: 0))
+    return result
   }
   
   func observeValues() {

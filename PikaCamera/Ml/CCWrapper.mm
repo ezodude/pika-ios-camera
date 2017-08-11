@@ -40,12 +40,14 @@
 }
 
 //- (void)isRed:(UIImage*)tile completion:(CCHandler) handler{
-//- (void)isRed:(CGImageRef)tile completion:(CCHandler) handler{
-- (void)isRed:(NSArray *)colors completion:(CCHandler) handler{
-//  id cgTileAsObject = (__bridge id)tile;
+- (void)isRed:(CGImageRef)tile completion:(CCHandler) handler{
+//- (void)isRed:(NSArray *)colors completion:(CCHandler) handler{
+  id cgTileAsObject = (__bridge id)tile;
   dispatch_async(self.classifierQueue, ^{
-//    NSArray *colors = [self getRGBAsFromImage:cgTileAsObject];
-    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:[NSArray arrayWithObjects: colors, nil]];
+    NSArray *colors = [self getRGBAsFromImage:cgTileAsObject];
+//    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector:[NSArray arrayWithObjects: colors, nil]];
+
+    std::vector<std::vector<std::vector<unsigned char>>> colorsASVectors = [self colorsToVector: colors];
     handler((bool)_colorClassifier->is_red(colorsASVectors, 0.18));
   });
 }
@@ -103,16 +105,16 @@
   for (int i = 0 ; i < count ; ++i)
   {
     CGFloat alpha = ((CGFloat) rawData[byteIndex + 3] ) / 255.0f;
-    NSLog(@"alpha - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 3], alpha);
+//    NSLog(@"alpha - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 3], alpha);
     
     CGFloat red = ((CGFloat) rawData[byteIndex]     ) / alpha;
-    NSLog(@"red - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex], red);
+//    NSLog(@"red - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex], red);
     
     CGFloat green = ((CGFloat) rawData[byteIndex + 1] ) / alpha;
-    NSLog(@"green - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 1], green);
+//    NSLog(@"green - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 1], green);
     
     CGFloat blue  = ((CGFloat) rawData[byteIndex + 2] ) / alpha;
-    NSLog(@"blue - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 2], blue);
+//    NSLog(@"blue - raw:[%f], formatted:[%f]", (CGFloat) rawData[byteIndex + 2], blue);
     
     byteIndex += bytesPerPixel;
     
