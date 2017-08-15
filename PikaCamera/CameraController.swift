@@ -59,14 +59,9 @@ class CameraController: NSObject {
   fileprivate var videoOutput:AVCaptureVideoDataOutput!
   fileprivate var frameCounter:Int = 0
   fileprivate var ciContext:CIContext?
-  fileprivate var metalDevice:MTLDevice?
-  fileprivate var metalTextureDesc:MTLTextureDescriptor?
-  fileprivate var metalTexture:MTLTexture?
-  fileprivate var metalTextureRegion:MTLRegion?
+  fileprivate var glContext:EAGLContext?
   fileprivate let colorSpace = CGColorSpaceCreateDeviceRGB()
   fileprivate let totalRGBBytes = 4
-  fileprivate let averageFilterWidth = 1
-  fileprivate let averageFilterHeight = 1
   
   // MARK: - Initialization
   
@@ -211,27 +206,25 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
       self.frameCounter = (self.frameCounter % self.previewTiles.count) == 0 ? 1 : self.frameCounter + 1;
       let index = self.frameCounter - 1
       let rect = self.previewTiles[index]
-      print("rect:[\(rect)]")
       
       let colorAverageFilter = CIFilter(name: "CIAreaAverage", withInputParameters:[
         kCIInputImageKey: frame,
         kCIInputExtentKey: CIVector(cgRect: rect)
         ])!
-      let averageColor = colorAverageFilter.outputImage!
+      let colorAverage = colorAverageFilter.outputImage!
       let bitmap = calloc(4, MemoryLayout<UInt8>.size)
-      ciContext?.render(averageColor, to: self.metalTexture!, commandBuffer: nil, bounds: averageColor.extent, colorSpace: self.colorSpace)
       
-      self.metalTexture?.getBytes(bitmap!, bytesPerRow: self.totalRGBBytes, from: self.metalTextureRegion!, mipmapLevel: 0)
-
+      ciContext?.render(colorAverage, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: colorAverage.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
+      
       let bitmapUnsafePointer = bitmap?.assumingMemoryBound(to: UInt8.self)
       let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: self.totalRGBBytes)
-      print("rgba:[\(rgba)]")
 
       let alpha = rgba[3] == 0 ? 1 : CGFloat(rgba[3]) / 255.0
       let red = CGFloat(rgba[0]) / alpha
       let green = CGFloat(rgba[1]) / alpha
       let blue = CGFloat(rgba[2]) / alpha
       let rgb = [NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))]
+      
       free(bitmap)
       
       switch self.detectedColor {
@@ -326,12 +319,8 @@ private extension CameraController {
         if connection.isVideoStabilizationSupported {
           connection.preferredVideoStabilizationMode = .auto
         }
-        self.metalDevice = MTLCreateSystemDefaultDevice()
-        self.ciContext = CIContext(mtlDevice:self.metalDevice!)
-        self.metalTextureDesc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: MTLPixelFormat.rgba8Unorm, width: self.averageFilterWidth, height: self.averageFilterHeight, mipmapped: false)
-        self.metalTextureDesc?.usage = MTLTextureUsage.shaderWrite
-        self.metalTexture = self.metalDevice?.makeTexture(descriptor: (self.metalTextureDesc)!)
-        self.metalTextureRegion = MTLRegionMake2D(0, 0, self.averageFilterWidth, self.averageFilterHeight)
+        self.glContext = EAGLContext(api: .openGLES2)
+        self.ciContext = CIContext(eaglContext: self.glContext!)
       }else{
         print(">>>>> no connection")
       }
