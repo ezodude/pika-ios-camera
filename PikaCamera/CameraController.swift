@@ -209,7 +209,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
           let index = self.frameCounter - 1
           let rect = self.previewTiles[index]
           
-          let colorAverageFilter = CIFilter(name: "CIAreaMaximum", withInputParameters:[
+          let colorAverageFilter = CIFilter(name: "CIAreaMinimum", withInputParameters:[
             kCIInputImageKey: frame,
             kCIInputExtentKey: CIVector(cgRect: rect)
             ])!
@@ -234,15 +234,29 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
             self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
               DispatchQueue.main.async { [unowned self] in
                 if detected {
-                  print("Red Detected:[\(String(detected))]")
-                  // self.delegate?.drawCircle(index: index, color: UIColor.red)
+//                  print("Red Detected:[\(String(detected))]")
+                   self.delegate?.drawCircle(index: index, color: UIColor.red)
                 }
               }
             })
           case .blue:
-            print("Blue Detected")
+            self.ccWrapper?.isBlue(rgb, completion: { (detected: Bool) in
+              DispatchQueue.main.async { [unowned self] in
+                if detected {
+                  //                  print("Red Detected:[\(String(detected))]")
+                  self.delegate?.drawCircle(index: index, color: UIColor.blue)
+                }
+              }
+            })
           case .yellow:
-            print("Yellow Detected")
+            self.ccWrapper?.isYellow(rgb, completion: { (detected: Bool) in
+              DispatchQueue.main.async { [unowned self] in
+                if detected {
+                  //                  print("Red Detected:[\(String(detected))]")
+                  self.delegate?.drawCircle(index: index, color: UIColor.yellow)
+                }
+              }
+            })
           }
         }
       }
