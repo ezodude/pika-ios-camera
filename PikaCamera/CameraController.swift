@@ -62,6 +62,8 @@ class CameraController: NSObject {
   fileprivate var glContext:EAGLContext?
   fileprivate let colorSpace = CGColorSpaceCreateDeviceRGB()
   fileprivate let totalRGBBytes = 4
+  fileprivate let downScale:CGFloat = 0.25
+  fileprivate let bytesPerPixel = 4
   
   // MARK: - Initialization
   
@@ -205,58 +207,90 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
       
       if self.colorDetection {
         self.frameCounter = (self.frameCounter % self.previewTiles.count) == 0 ? 1 : self.frameCounter + 1;
+        
+        let downScaled = frame.transformed(by: CGAffineTransform(scaleX: self.downScale, y: self.downScale))
+
         let index = self.frameCounter - 1
-        let rect = self.previewTiles[index]
+        let tileBounds = self.previewTiles[index]
         
-        let colorAverageFilter = CIFilter(name: "CIAreaMinimum", withInputParameters:[
-          kCIInputImageKey: frame,
-          kCIInputExtentKey: CIVector(cgRect: rect)
-          ])!
-        let colorAverage = colorAverageFilter.outputImage!
-        let bitmap = calloc(4, MemoryLayout<UInt8>.size)
+//        let colorAverageFilter = CIFilter(name: "CIAreaMinimum", withInputParameters:[
+//          kCIInputImageKey: frame,
+//          kCIInputExtentKey: CIVector(cgRect: rect)
+//          ])!
+//        let colorAverage = colorAverageFilter.outputImage!
+        let pointerAllocation = bytesPerPixel * Int(tileBounds.width) * Int(tileBounds.height)
+        let bytesPerRow = bytesPerPixel * Int(tileBounds.width)
+        let bitmap = calloc(pointerAllocation, MemoryLayout<UInt8>.size)
         
-        self.ciContext?.render(colorAverage, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: colorAverage.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
+//        self.ciContext?.render(colorAverage, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: colorAverage.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
+        
+        self.ciContext?.render(downScaled, toBitmap: bitmap!, rowBytes: bytesPerRow, bounds: tileBounds, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
         
         let bitmapUnsafePointer = bitmap?.assumingMemoryBound(to: UInt8.self)
-        let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: self.totalRGBBytes)
+        let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: pointerAllocation)
         
-        let alpha = rgba[3] == 0 ? 1 : CGFloat(rgba[3]) / 255.0
-        let red = CGFloat(rgba[0]) / alpha
-        let green = CGFloat(rgba[1]) / alpha
-        let blue = CGFloat(rgba[2]) / alpha
-        let rgb = [NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))]
+        let pixelCount = Int(tileBounds.width) * Int(tileBounds.height)
+        var rgb:[[NSNumber]] = Array(repeating: [], count:pixelCount)
+        let xCoord = 0, yCoord = 0
+        var byteIndex = (bytesPerRow * yCoord) + xCoord * bytesPerPixel
+        for i in 0..<pixelCount{
+          let alpha = CGFloat(rgba[byteIndex + 3]) / 255.0
+          let red = CGFloat(rgba[byteIndex]) / alpha
+          let green = CGFloat(rgba[byteIndex + 1]) / alpha
+          let blue = CGFloat(rgba[byteIndex + 2]) / alpha
+          byteIndex += bytesPerPixel;
+          
+          let pixelColors = [NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))]
+          rgb[i] = pixelColors
+        }
         
+//        for (int i = 0 ; i < count ; ++i)
+//        {
+//          CGFloat alpha = ((CGFloat) rawData[byteIndex + 3] ) / 255.0f;
+//          CGFloat red   = ((CGFloat) rawData[byteIndex]     ) / alpha;
+//          CGFloat green = ((CGFloat) rawData[byteIndex + 1] ) / alpha;
+//          CGFloat blue  = ((CGFloat) rawData[byteIndex + 2] ) / alpha;
+//          byteIndex += bytesPerPixel;
+//
+//          NSArray *pixelColors = [NSArray arrayWithObjects:
+//            [NSNumber numberWithInteger:red],
+//            [NSNumber numberWithInteger:green],
+//            [NSNumber numberWithInteger:blue],
+//            nil];
+//          [result addObject:pixelColors];
+//        }
+        print("rgb:[\(String(describing:rgb))]")
         free(bitmap)
         
-        switch self.detectedColor {
-        case .red:
-          self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
-            DispatchQueue.main.async { [unowned self] in
-              if detected {
-//                  print("Red Detected:[\(String(detected))]")
-                 self.delegate?.drawCircle(index: index, color: UIColor.red)
-              }
-            }
-          })
-        case .blue:
-          self.ccWrapper?.isBlue(rgb, completion: { (detected: Bool) in
-            DispatchQueue.main.async { [unowned self] in
-              if detected {
-                //                  print("Red Detected:[\(String(detected))]")
-                self.delegate?.drawCircle(index: index, color: UIColor.blue)
-              }
-            }
-          })
-        case .yellow:
-          self.ccWrapper?.isYellow(rgb, completion: { (detected: Bool) in
-            DispatchQueue.main.async { [unowned self] in
-              if detected {
-                //                  print("Red Detected:[\(String(detected))]")
-                self.delegate?.drawCircle(index: index, color: UIColor.yellow)
-              }
-            }
-          })
-        }
+//        switch self.detectedColor {
+//        case .red:
+//          self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
+//            DispatchQueue.main.async { [unowned self] in
+//              if detected {
+////                  print("Red Detected:[\(String(detected))]")
+//                 self.delegate?.drawCircle(index: index, color: UIColor.red)
+//              }
+//            }
+//          })
+//        case .blue:
+//          self.ccWrapper?.isBlue(rgb, completion: { (detected: Bool) in
+//            DispatchQueue.main.async { [unowned self] in
+//              if detected {
+//                //                  print("Red Detected:[\(String(detected))]")
+//                self.delegate?.drawCircle(index: index, color: UIColor.blue)
+//              }
+//            }
+//          })
+//        case .yellow:
+//          self.ccWrapper?.isYellow(rgb, completion: { (detected: Bool) in
+//            DispatchQueue.main.async { [unowned self] in
+//              if detected {
+//                //                  print("Red Detected:[\(String(detected))]")
+//                self.delegate?.drawCircle(index: index, color: UIColor.yellow)
+//              }
+//            }
+//          })
+//        }
       }
     }
   }
@@ -348,8 +382,9 @@ private extension CameraController {
       guard self.videoOutput.connection(with: AVMediaType.video) != nil else {
         return
       }
-      let outputWidth = self.videoOutput.videoSettings!["Width"] as! CGFloat
-      let outputHeight = self.videoOutput.videoSettings!["Height"] as! CGFloat
+      
+      let outputWidth = self.videoOutput.videoSettings!["Width"] as! CGFloat * self.downScale
+      let outputHeight = self.videoOutput.videoSettings!["Height"] as! CGFloat * self.downScale
       
       let tileWidth:CGFloat = outputWidth / 3.0;
       let tileHeight:CGFloat = outputHeight / 3.0;
