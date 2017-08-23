@@ -34,15 +34,14 @@ protocol CameraControllerDelegate : class {
   func cameraController(_ cameraController:CameraController, didOutputImage: CIImage)
   func cameraAccessDenied()
   func willCapturePhotoAnimation()
-  func drawCircle(inRect: CGRect, color:UIColor)
+  func drawCircle(index: Int, color:UIColor)
 }
 
 class CameraController: NSObject {
   weak var delegate:CameraControllerDelegate?
   var previewType:CameraControllePreviewType
   var previewFilter:CameraControllerPreviewFilter
-  var previewBounds:CGRect
-  var previewTiles:[CGRect]
+  var previewTiles:[CGRect] = []
   var previewLayer:AVCaptureVideoPreviewLayer!
   var colorDetection:Bool = false
   var detectedColor:DetectedColor = .red
@@ -59,15 +58,17 @@ class CameraController: NSObject {
   fileprivate var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
   fileprivate var videoOutput:AVCaptureVideoDataOutput!
   fileprivate var frameCounter:Int = 0
+  fileprivate var ciContext:CIContext?
+  fileprivate var glContext:EAGLContext?
+  fileprivate let colorSpace = CGColorSpaceCreateDeviceRGB()
+  fileprivate let totalRGBBytes = 4
   
   // MARK: - Initialization
   
-  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, previewBounds:CGRect, previewTiles:[CGRect], delegate:CameraControllerDelegate) {
+  required init(previewType: CameraControllePreviewType, previewFilter: CameraControllerPreviewFilter, delegate:CameraControllerDelegate) {
     self.delegate = delegate
     self.previewType = previewType
     self.previewFilter = previewFilter
-    self.previewBounds = previewBounds
-    self.previewTiles = previewTiles
     
     super.init()
     initializeSession()
@@ -192,57 +193,72 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
   func captureOutput(_ output: AVCaptureOutput,
                      didOutput sampleBuffer: CMSampleBuffer,
                      from connection: AVCaptureConnection){
-    self.frameCounter += 1;
-    let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-    let frame = CIImage(cvPixelBuffer: pixelBuffer!)
     
-    if (self.frameCounter % 15) == 0 && self.colorDetection {
-//    if self.colorDetection {
-      let reScaleXFactor = self.previewBounds.width / frame.extent.width
-      let reScaleYFactor = self.previewBounds.height / frame.extent.height
-      let rescaleTransform = CGAffineTransform(scaleX: reScaleXFactor, y: reScaleYFactor)
-      let rescaledFrame = frame.transformed(by: rescaleTransform)
+    autoreleasepool{
+      let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+      let frame = CIImage(cvPixelBuffer: pixelBuffer!)
 
-      for tile in self.previewTiles{
-        let baseTile = rescaledFrame.cropped(to: tile)
-        let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
-//
+      DispatchQueue.main.async { [unowned self] in
+        let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
+        self.delegate?.cameraController(self, didOutputImage: filtered)
+      }
+      
+      if self.colorDetection {
+        self.frameCounter = (self.frameCounter % self.previewTiles.count) == 0 ? 1 : self.frameCounter + 1;
+        let index = self.frameCounter - 1
+        let rect = self.previewTiles[index]
+        
+        let colorAverageFilter = CIFilter(name: "CIAreaMinimum", withInputParameters:[
+          kCIInputImageKey: frame,
+          kCIInputExtentKey: CIVector(cgRect: rect)
+          ])!
+        let colorAverage = colorAverageFilter.outputImage!
+        let bitmap = calloc(4, MemoryLayout<UInt8>.size)
+        
+        self.ciContext?.render(colorAverage, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: colorAverage.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
+        
+        let bitmapUnsafePointer = bitmap?.assumingMemoryBound(to: UInt8.self)
+        let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: self.totalRGBBytes)
+        
+        let alpha = rgba[3] == 0 ? 1 : CGFloat(rgba[3]) / 255.0
+        let red = CGFloat(rgba[0]) / alpha
+        let green = CGFloat(rgba[1]) / alpha
+        let blue = CGFloat(rgba[2]) / alpha
+        let rgb = [NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))]
+        
+        free(bitmap)
+        
         switch self.detectedColor {
         case .red:
-          self.ccWrapper?.isRed(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+          self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
             DispatchQueue.main.async { [unowned self] in
               if detected {
-//                print("Red Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.red)
+//                  print("Red Detected:[\(String(detected))]")
+                 self.delegate?.drawCircle(index: index, color: UIColor.red)
               }
             }
           })
         case .blue:
-          self.ccWrapper?.isBlue(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+          self.ccWrapper?.isBlue(rgb, completion: { (detected: Bool) in
             DispatchQueue.main.async { [unowned self] in
               if detected {
-//                print("Blue Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.blue)
+                //                  print("Red Detected:[\(String(detected))]")
+                self.delegate?.drawCircle(index: index, color: UIColor.blue)
               }
             }
           })
         case .yellow:
-          self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
+          self.ccWrapper?.isYellow(rgb, completion: { (detected: Bool) in
             DispatchQueue.main.async { [unowned self] in
               if detected {
-//                print("Yellow Detected:[\(String(detected))] in tile:[\(tile)]")
-                self.delegate?.drawCircle(inRect: tile, color: UIColor.yellow)
+                //                  print("Red Detected:[\(String(detected))]")
+                self.delegate?.drawCircle(index: index, color: UIColor.yellow)
               }
             }
           })
         }
       }
-      self.frameCounter = 0
     }
-    
-    let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
-    
-    self.delegate?.cameraController(self, didOutputImage: filtered)
   }
 }
 
@@ -263,6 +279,7 @@ private extension CameraController {
     //
     if previewType == .manual {
       configureVideoOutput()
+      generateVideoOutputTiles()
     }
     self.session.commitConfiguration()
   }
@@ -306,6 +323,7 @@ private extension CameraController {
   func configureVideoOutput() {
     performConfiguration { () -> Void in
       self.videoOutput = AVCaptureVideoDataOutput()
+      self.videoOutput.videoSettings = nil
       self.videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.joinpika.video_out_queue", attributes: []))
       self.videoOutput.alwaysDiscardsLateVideoFrames = true
       
@@ -317,9 +335,35 @@ private extension CameraController {
         if connection.isVideoStabilizationSupported {
           connection.preferredVideoStabilizationMode = .auto
         }
+        self.glContext = EAGLContext(api: .openGLES2)
+        self.ciContext = CIContext(eaglContext: self.glContext!)
       }else{
         print(">>>>> no connection")
       }
+    }
+  }
+  
+  func generateVideoOutputTiles() {
+    performConfiguration { () -> Void in
+      guard self.videoOutput.connection(with: AVMediaType.video) != nil else {
+        return
+      }
+      let outputWidth = self.videoOutput.videoSettings!["Width"] as! CGFloat
+      let outputHeight = self.videoOutput.videoSettings!["Height"] as! CGFloat
+      
+      let tileWidth:CGFloat = outputWidth / 3.0;
+      let tileHeight:CGFloat = outputHeight / 3.0;
+      var mirroredTiles:[[CGRect]] = []
+      
+      for cols in 0...2 {
+        var temp:[CGRect] = []
+        for rows in 0...2 {
+          temp.append(CGRect(x: CGFloat(cols) * tileWidth, y: CGFloat(rows) * tileHeight, width: tileWidth, height: tileHeight))
+        }
+        mirroredTiles.append(temp.reversed())
+      }
+      
+      self.previewTiles = Array(mirroredTiles.joined())
     }
   }
   
