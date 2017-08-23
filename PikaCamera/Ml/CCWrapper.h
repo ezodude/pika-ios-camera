@@ -18,13 +18,9 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void(^CCHandler)(BOOL);
 
 - (instancetype)initWithModel:(NSString *)title queue:(dispatch_queue_t)classifierQueue;
-
-- (BOOL)isBlue:(UIImage*)tile;
-
-- (BOOL)isRed:(UIImage*)tile;
-
-- (void)isYellow:(UIImage*)tile completion:(CCHandler) handler;
-
+- (void)isRed:(NSArray *)colors completion:(CCHandler) handler;
+- (void)isBlue:(NSArray *)colors completion:(CCHandler) handler;
+- (void)isYellow:(NSArray *)colors completion:(CCHandler) handler;
 - (NSArray *)computeColorPercentages:(UIImage*)tile;
 
 @end

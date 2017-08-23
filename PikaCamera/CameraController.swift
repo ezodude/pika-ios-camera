@@ -23,18 +23,28 @@ enum CameraControllerPreviewFilter: String {
   case none
 }
 
+enum DetectedColor {
+  case red
+  case blue
+  case yellow
+}
+
 protocol CameraControllerDelegate : class {
   func cameraController(_ cameraController:CameraController)
   func cameraController(_ cameraController:CameraController, didOutputImage: CIImage)
   func cameraAccessDenied()
   func willCapturePhotoAnimation()
+  func drawCircle(index: Int, color:UIColor)
 }
 
 class CameraController: NSObject {
   weak var delegate:CameraControllerDelegate?
   var previewType:CameraControllePreviewType
   var previewFilter:CameraControllerPreviewFilter
+  var previewTiles:[CGRect] = []
   var previewLayer:AVCaptureVideoPreviewLayer!
+  var colorDetection:Bool = false
+  var detectedColor:DetectedColor = .red
   
   // MARK: Private properties
   fileprivate var sessionQueue:DispatchQueue = DispatchQueue(label: "com.joinpika.camera_session_access_queue", attributes: [])
@@ -48,6 +58,10 @@ class CameraController: NSObject {
   fileprivate var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
   fileprivate var videoOutput:AVCaptureVideoDataOutput!
   fileprivate var frameCounter:Int = 0
+  fileprivate var ciContext:CIContext?
+  fileprivate var glContext:EAGLContext?
+  fileprivate let colorSpace = CGColorSpaceCreateDeviceRGB()
+  fileprivate let totalRGBBytes = 4
   
   // MARK: - Initialization
   
@@ -59,11 +73,6 @@ class CameraController: NSObject {
     super.init()
     initializeSession()
     self.ccWrapper = CCWrapper(model: "color_statistic", queue: DispatchQueue(label: "com.joinpika.classify_color", attributes: []))
-  }
-  
-  
-  convenience init(delegate:CameraControllerDelegate) {
-    self.init(previewType: .manual, previewFilter: .monochrome, delegate: delegate)
   }
   
   func initializeSession() {
@@ -81,11 +90,9 @@ class CameraController: NSObject {
                                     completionHandler: { (granted:Bool) -> Void in
                                       if granted {
                                         self.configureSession()
-                                        print("auth granted")
                                       }
                                       else {
                                         self.showAccessDeniedMessage()
-                                        print("access denied")
                                       }
       })
     case .authorized:
@@ -110,6 +117,14 @@ class CameraController: NSObject {
       self.unobserveValues()
       self.session.stopRunning()
     }
+  }
+  
+  func toggleColorDetection() {
+    self.colorDetection = !self.colorDetection
+  }
+  
+  func changeDetectedColor(_ color:DetectedColor) {
+    self.detectedColor = color
   }
   
   // MARK: Capture photo
@@ -179,26 +194,71 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
                      didOutput sampleBuffer: CMSampleBuffer,
                      from connection: AVCaptureConnection){
     
-    frameCounter += 1;
-    let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-    let frame = CIImage(cvPixelBuffer: pixelBuffer!)
+    autoreleasepool{
+      let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+      let frame = CIImage(cvPixelBuffer: pixelBuffer!)
 
-    if (frameCounter % 15) == 0{
-      let extent = frame.extent
-      let cropRect = CGRect(x:0, y:0, width:extent.width/3, height:extent.height/3)
-//      print(">>>>> frame width[\(frame.extent.width)] height[\(frame.extent.height)]")
+      DispatchQueue.main.async { [unowned self] in
+        let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
+        self.delegate?.cameraController(self, didOutputImage: filtered)
+      }
       
-      let baseTile = frame.cropped(to: cropRect)
-      let cgTile = CIContext().createCGImage(baseTile, from: baseTile.extent)
-      self.ccWrapper?.isYellow(UIImage(cgImage: cgTile!), completion: { (detected: Bool) in
-        print(">>>>> is yellow detected: [\(String(describing: detected))]")
-      })
-      
-      frameCounter = 0
+      if self.colorDetection {
+        self.frameCounter = (self.frameCounter % self.previewTiles.count) == 0 ? 1 : self.frameCounter + 1;
+        let index = self.frameCounter - 1
+        let rect = self.previewTiles[index]
+        
+        let colorAverageFilter = CIFilter(name: "CIAreaMinimum", withInputParameters:[
+          kCIInputImageKey: frame,
+          kCIInputExtentKey: CIVector(cgRect: rect)
+          ])!
+        let colorAverage = colorAverageFilter.outputImage!
+        let bitmap = calloc(4, MemoryLayout<UInt8>.size)
+        
+        self.ciContext?.render(colorAverage, toBitmap: bitmap!, rowBytes: self.totalRGBBytes, bounds: colorAverage.extent, format: kCIFormatRGBA8, colorSpace: self.colorSpace)
+        
+        let bitmapUnsafePointer = bitmap?.assumingMemoryBound(to: UInt8.self)
+        let rgba = UnsafeBufferPointer<UInt8>(start: bitmapUnsafePointer, count: self.totalRGBBytes)
+        
+        let alpha = rgba[3] == 0 ? 1 : CGFloat(rgba[3]) / 255.0
+        let red = CGFloat(rgba[0]) / alpha
+        let green = CGFloat(rgba[1]) / alpha
+        let blue = CGFloat(rgba[2]) / alpha
+        let rgb = [NSNumber(value: Int(red)), NSNumber(value: Int(green)), NSNumber(value: Int(blue))]
+        
+        free(bitmap)
+        
+        switch self.detectedColor {
+        case .red:
+          self.ccWrapper?.isRed(rgb, completion: { (detected: Bool) in
+            DispatchQueue.main.async { [unowned self] in
+              if detected {
+//                  print("Red Detected:[\(String(detected))]")
+                 self.delegate?.drawCircle(index: index, color: UIColor.red)
+              }
+            }
+          })
+        case .blue:
+          self.ccWrapper?.isBlue(rgb, completion: { (detected: Bool) in
+            DispatchQueue.main.async { [unowned self] in
+              if detected {
+                //                  print("Red Detected:[\(String(detected))]")
+                self.delegate?.drawCircle(index: index, color: UIColor.blue)
+              }
+            }
+          })
+        case .yellow:
+          self.ccWrapper?.isYellow(rgb, completion: { (detected: Bool) in
+            DispatchQueue.main.async { [unowned self] in
+              if detected {
+                //                  print("Red Detected:[\(String(detected))]")
+                self.delegate?.drawCircle(index: index, color: UIColor.yellow)
+              }
+            }
+          })
+        }
+      }
     }
-    
-    let filtered = previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
-    self.delegate?.cameraController(self, didOutputImage: filtered)
   }
 }
 
@@ -219,6 +279,7 @@ private extension CameraController {
     //
     if previewType == .manual {
       configureVideoOutput()
+      generateVideoOutputTiles()
     }
     self.session.commitConfiguration()
   }
@@ -233,12 +294,10 @@ private extension CameraController {
       
       self.currentCameraDevice = self.backCameraDevice
       let possibleCameraInput = try? AVCaptureDeviceInput(device: self.currentCameraDevice!)
-      print(">>>>> possibleCameraInput: \(String(describing: possibleCameraInput))")
       
       if let backCameraInput = possibleCameraInput {
         if self.session.canAddInput(backCameraInput) {
           self.session.addInput(backCameraInput)
-          print(">>>>> session added input from back camera")
         }
       }
     }
@@ -264,22 +323,47 @@ private extension CameraController {
   func configureVideoOutput() {
     performConfiguration { () -> Void in
       self.videoOutput = AVCaptureVideoDataOutput()
+      self.videoOutput.videoSettings = nil
       self.videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "com.joinpika.video_out_queue", attributes: []))
       self.videoOutput.alwaysDiscardsLateVideoFrames = true
       
       if self.session.canAddOutput(self.videoOutput) {
         self.session.addOutput(self.videoOutput)
-        print(">>>>> added video output to session")
       }
       
       if let connection = self.videoOutput.connection(with: AVMediaType.video) {
-        print(">>>>> connection \(connection)")
         if connection.isVideoStabilizationSupported {
           connection.preferredVideoStabilizationMode = .auto
         }
+        self.glContext = EAGLContext(api: .openGLES2)
+        self.ciContext = CIContext(eaglContext: self.glContext!)
       }else{
         print(">>>>> no connection")
       }
+    }
+  }
+  
+  func generateVideoOutputTiles() {
+    performConfiguration { () -> Void in
+      guard self.videoOutput.connection(with: AVMediaType.video) != nil else {
+        return
+      }
+      let outputWidth = self.videoOutput.videoSettings!["Width"] as! CGFloat
+      let outputHeight = self.videoOutput.videoSettings!["Height"] as! CGFloat
+      
+      let tileWidth:CGFloat = outputWidth / 3.0;
+      let tileHeight:CGFloat = outputHeight / 3.0;
+      var mirroredTiles:[[CGRect]] = []
+      
+      for cols in 0...2 {
+        var temp:[CGRect] = []
+        for rows in 0...2 {
+          temp.append(CGRect(x: CGFloat(cols) * tileWidth, y: CGFloat(rows) * tileHeight, width: tileWidth, height: tileHeight))
+        }
+        mirroredTiles.append(temp.reversed())
+      }
+      
+      self.previewTiles = Array(mirroredTiles.joined())
     }
   }
   

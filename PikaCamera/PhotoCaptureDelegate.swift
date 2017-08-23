@@ -128,7 +128,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
           }
           creationRequest.addResource(with: .photo, data: photoData, options: options)
-          print("Added photo")
           
           if let livePhotoCompanionMovieURL = self.livePhotoCompanionMovieURL {
             let livePhotoCompanionMovieFileResourceOptions = PHAssetResourceCreationOptions()
