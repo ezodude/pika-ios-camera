@@ -152,8 +152,8 @@ class CameraController: NSObject {
       
       photoSettings.isHighResolutionPhotoEnabled = true
       
-      if !photoSettings.availablePreviewPhotoPixelFormatTypes.isEmpty {
-        photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.availablePreviewPhotoPixelFormatTypes.first!]
+      if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
+        photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
       }
       
       // Use a separate object for the photo capture delegate to isolate each capture life cycle.
