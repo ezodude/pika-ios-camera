@@ -130,7 +130,6 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   
   func drawCircle(index: Int, color: UIColor) {
     let dot = gridViewColorDots[index]
-    print("tileIndex:[\(index)].")
     dot.layer.backgroundColor = color.cgColor
     dot.layer.opacity = 1
     
