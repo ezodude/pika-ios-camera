@@ -199,8 +199,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
       let frame = CIImage(cvPixelBuffer: pixelBuffer!)
 
       DispatchQueue.main.async { [unowned self] in
-        let filtered = self.previewFilter == .monochrome ? frame.applyingFilter("CIPhotoEffectNoir", parameters: [:]) : frame
-        self.delegate?.cameraController(self, didOutputImage: filtered)
+        self.delegate?.cameraController(self, didOutputImage: frame)
       }
       
       if self.colorDetection {
