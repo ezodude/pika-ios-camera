@@ -83,10 +83,10 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YuF-eG-VJs">
-                                        <rect key="frame" x="307" y="42" width="40" height="39"/>
+                                        <rect key="frame" x="318" y="47" width="30" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        <state key="normal" image="ColorDetect">
+                                        <state key="normal" image="PrimaryColors">
                                             <color key="titleColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
@@ -129,7 +129,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="ColorDetect" width="40" height="39"/>
         <image name="PikaLogoMini" width="35" height="18"/>
+        <image name="PrimaryColors" width="30" height="30"/>
     </resources>
 </document>

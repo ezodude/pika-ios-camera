@@ -2,12 +2,12 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "ColorDetect.png",
+      "filename" : "PrimaryColors.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "ColorDetect2x.png",
+      "filename" : "PrimaryColors2x.png",
       "scale" : "2x"
     },
     {
