@@ -40,24 +40,11 @@
                                 <rect key="frame" x="0.0" y="549" width="375" height="118"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vrI-cI-cnr">
-                                        <rect key="frame" x="230" y="16" width="65" height="93"/>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aUq-D3-XKP">
+                                        <rect key="frame" x="130" y="16" width="65" height="93"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        <connections>
-                                            <action selector="detectRed:" destination="srG-e5-v2z" eventType="touchUpInside" id="7gb-ZY-Dmn"/>
-                                        </connections>
-                                    </button>
-                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aUq-D3-XKP">
-                                        <rect key="frame" x="130" y="32" width="60" height="60"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="30"/>
-                                            </userDefinedRuntimeAttribute>
-                                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.maskToBounds" value="YES"/>
-                                        </userDefinedRuntimeAttributes>
+                                        <state key="normal" image="DetectBlue"/>
                                         <connections>
                                             <action selector="detectBlue:" destination="srG-e5-v2z" eventType="touchUpInside" id="EoZ-bQ-3hY"/>
                                         </connections>
@@ -74,12 +61,21 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="g9g-49-ugg">
-                                        <rect key="frame" x="28" y="16" width="65" height="93"/>
+                                        <rect key="frame" x="40" y="16" width="65" height="93"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <state key="normal" image="DetectYellow"/>
                                         <connections>
                                             <action selector="detectYellow:" destination="srG-e5-v2z" eventType="touchUpInside" id="o4m-In-QUY"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vrI-cI-cnr">
+                                        <rect key="frame" x="216" y="16" width="65" height="93"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <state key="normal" image="DetectRed"/>
+                                        <connections>
+                                            <action selector="detectRed:" destination="srG-e5-v2z" eventType="touchUpInside" id="7gb-ZY-Dmn"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -118,6 +114,8 @@
         </scene>
     </scenes>
     <resources>
+        <image name="DetectBlue" width="65" height="93"/>
+        <image name="DetectRed" width="65" height="93"/>
         <image name="DetectYellow" width="65" height="93"/>
         <image name="PikaLogoMini" width="35" height="18"/>
         <image name="PrimaryColors" width="30" height="30"/>
