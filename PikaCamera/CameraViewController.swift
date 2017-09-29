@@ -12,12 +12,11 @@ import OpenGLES
 
 class CameraViewController: UIViewController, CameraControllerDelegate {
   var cameraController:CameraController!
-  var colorDetectionActive:Bool = false
   
   @IBOutlet weak var previewContainerView: UIView!
   @IBOutlet weak var videoPreviewView: GLKView!
   
-  @IBOutlet weak var colorDetectModeButton: UIButton!
+//  @IBOutlet weak var colorDetectModeButton: UIButton!
   @IBOutlet weak var redDetectorButton: UIButton!
   @IBOutlet weak var blueDetectorButton: UIButton!
   @IBOutlet weak var yellowDetectorButton: UIButton!
@@ -35,7 +34,6 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    colorDetectModeButton.layer.borderColor = UIColor.black.cgColor
     
     glContext = EAGLContext(api: .openGLES2)
     glView.context = glContext!
@@ -48,6 +46,17 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
     
     ciContext = CIContext(eaglContext: glContext!)
     cameraController = CameraController(previewType: .manual, previewFilter: .monochrome, delegate: self)
+    
+    yellowDetectorButton.isEnabled = true
+    yellowDetectorButton.layer.opacity = 0.5
+    
+    blueDetectorButton.isEnabled = true
+    blueDetectorButton.layer.opacity = 0.5
+    
+    redDetectorButton.isEnabled = true
+    redDetectorButton.layer.opacity = 0.5
+    
+    detectYellow(yellowDetectorButton)
   }
   
   override func viewDidAppear(_ animated: Bool) {
@@ -55,24 +64,6 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   }
   
   // Mark: Actions
-  
-  @IBAction func toggleColorDetection(_ sender: UIButton) {
-    colorDetectionActive = !colorDetectionActive
-    
-    yellowDetectorButton.isEnabled = colorDetectionActive
-    yellowDetectorButton.layer.opacity = 0.5
-    
-    blueDetectorButton.isEnabled = colorDetectionActive
-    blueDetectorButton.layer.opacity = 0.5
-    
-    redDetectorButton.isEnabled = colorDetectionActive
-    redDetectorButton.layer.opacity = 0.5
-    
-    if colorDetectionActive {
-      detectYellow(yellowDetectorButton)
-    }
-    cameraController.toggleColorDetection()
-  }
   
   @IBAction func detectRed(_ sender: UIButton) {
     redDetectorButton.layer.opacity = 1.0

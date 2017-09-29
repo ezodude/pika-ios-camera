@@ -43,7 +43,7 @@ class CameraController: NSObject {
   var previewFilter:CameraControllerPreviewFilter
   var previewTiles:[CGRect] = []
   var previewLayer:AVCaptureVideoPreviewLayer!
-  var colorDetection:Bool = false
+  var colorDetection:Bool = true
   var detectedColor:DetectedColor = .red
   
   // MARK: Private properties
@@ -117,10 +117,6 @@ class CameraController: NSObject {
       self.unobserveValues()
       self.session.stopRunning()
     }
-  }
-  
-  func toggleColorDetection() {
-    self.colorDetection = !self.colorDetection
   }
   
   func changeDetectedColor(_ color:DetectedColor) {
