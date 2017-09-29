@@ -17,7 +17,6 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   @IBOutlet weak var previewContainerView: UIView!
   @IBOutlet weak var videoPreviewView: GLKView!
   
-//  @IBOutlet weak var shutterButton: UIButton!
   @IBOutlet weak var colorDetectModeButton: UIButton!
   @IBOutlet weak var redDetectorButton: UIButton!
   @IBOutlet weak var blueDetectorButton: UIButton!
@@ -36,7 +35,6 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-//    shutterButton.layer.borderColor = UIColor.yellow.cgColor
     colorDetectModeButton.layer.borderColor = UIColor.black.cgColor
     
     glContext = EAGLContext(api: .openGLES2)
@@ -58,52 +56,48 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
   
   // Mark: Actions
   
-//  @IBAction func handleShutterButton(_ sender: UIButton) {
-//      cameraController.capturePhoto()
-//  }
-  
   @IBAction func toggleColorDetection(_ sender: UIButton) {
     colorDetectionActive = !colorDetectionActive
     
-    redDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.red.cgColor : UIColor.lightGray.cgColor
-    redDetectorButton.isEnabled = colorDetectionActive
-    redDetectorButton.layer.borderColor = UIColor.clear.cgColor
-    
-    blueDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.blue.cgColor : UIColor.lightGray.cgColor
-    blueDetectorButton.isEnabled = colorDetectionActive
-    blueDetectorButton.layer.borderColor = UIColor.clear.cgColor
-    
-//    yellowDetectorButton.layer.backgroundColor = colorDetectionActive ? UIColor.yellow.cgColor : UIColor.lightGray.cgColor
     yellowDetectorButton.isEnabled = colorDetectionActive
-//    yellowDetectorButton.layer.borderColor = UIColor.clear.cgColor
+    yellowDetectorButton.layer.opacity = 0.5
+    
+    blueDetectorButton.isEnabled = colorDetectionActive
+    blueDetectorButton.layer.opacity = 0.5
+    
+    redDetectorButton.isEnabled = colorDetectionActive
+    redDetectorButton.layer.opacity = 0.5
     
     if colorDetectionActive {
-//      detectRed(redDetectorButton)
       detectYellow(yellowDetectorButton)
     }
     cameraController.toggleColorDetection()
   }
   
   @IBAction func detectRed(_ sender: UIButton) {
-    redDetectorButton.layer.borderColor = UIColor.white.cgColor
-    blueDetectorButton.layer.borderColor = UIColor.clear.cgColor
-    yellowDetectorButton.layer.borderColor = UIColor.clear.cgColor
+    redDetectorButton.layer.opacity = 1.0
+    blueDetectorButton.layer.opacity = 0.5
+    yellowDetectorButton.layer.opacity = 0.5
+    
     cameraController.changeDetectedColor(.red)
   }
   
   @IBAction func detectBlue(_ sender: UIButton) {
-    redDetectorButton.layer.borderColor = UIColor.clear.cgColor
-    blueDetectorButton.layer.borderColor = UIColor.white.cgColor
-    yellowDetectorButton.layer.borderColor = UIColor.clear.cgColor
+    redDetectorButton.layer.opacity = 0.5
+    blueDetectorButton.layer.opacity = 1.0
+    yellowDetectorButton.layer.opacity = 0.5
+
     cameraController.changeDetectedColor(.blue)
   }
   
   @IBAction func detectYellow(_ sender: UIButton) {
-//    redDetectorButton.layer.borderColor = UIColor.clear.cgColor
-//    blueDetectorButton.layer.borderColor = UIColor.clear.cgColor
-//    yellowDetectorButton.layer.borderColor = UIColor.white.cgColor
+    redDetectorButton.layer.opacity = 0.5
+    blueDetectorButton.layer.opacity = 0.5
+    yellowDetectorButton.layer.opacity = 1.0
+
     cameraController.changeDetectedColor(.yellow)
   }
+  
   // Mark: Delegates
   
   func cameraController(_ cameraController: CameraController, didOutputImage image: CIImage) {
@@ -154,8 +148,6 @@ class CameraViewController: UIViewController, CameraControllerDelegate {
       dotView.clipsToBounds = true
       dotView.center = saveCenter
       dotView.layer.opacity = 0.0
-//      let key = getKey(tile)
-//      gridViewColorDots[i + 1] = dotView
       gridViewColorDots.append(dotView)
       gridView.insertSubview(dotView, at:1)
     }
